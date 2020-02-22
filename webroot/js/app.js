@@ -12,13 +12,16 @@ function loadLists() {
       clearArray(appState.lists);
       data.forEach(list => {
         addList(list);
-        
       });
+      if (appState.selectedList === null && data.length > 0) {
+        appState.selectedList = data[0]._id;
+        loadItems();
+      }
     });
 }
 
-function loadItems(listId) {
-  fetch("//localhost:8080/api/lists/" + listId + "/")
+function loadItems() {
+  fetch("//localhost:8080/api/lists/" + appState.selectedList + "/")
   .then(resp => resp.json())
   .then(data => {
     clearArray(appState.listData.items);
@@ -119,16 +122,16 @@ const app = new Vue({
 });
 
 Vue.component('ah-list', {
-  props: ['list'],
+  props: ['list', 'selected'],
   methods: {
     select() {
       const listId = this.list._id;
       appState.selectedList = listId;
-      loadItems(listId);
+      loadItems();
     }    
   },
   template: `
-    <li v-bind:id="list._id" v-on:click="select">{{list.name}}</li>
+    <li v-bind:id="list._id" v-on:click="select"><a v-bind:class="{'is-active': selected}">{{list.name}}</a></li>
   `
 });
 
@@ -144,10 +147,10 @@ Vue.component('ah-item', {
     }
   },
   template: `
-  <li>
+  <div>
     <input v-on:input="select" type="checkbox" v-bind:id="item._id" v-model="item.done">
-    <label v-bind:for="item._id">{{ item.task }}</label>
-  </li>
+    <label class="checkbox" v-bind:for="item._id">{{ item.task }}</label>
+  </div>
   `
 });
 

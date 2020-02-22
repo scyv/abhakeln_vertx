@@ -1,25 +1,68 @@
+<!DOCTYPE html>
 <html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Abhakeln</title>
+    <link rel="stylesheet" href="/css/lib/bulma.min.css">
+    <link rel="stylesheet" href="/css/app.css">
+</head>
+
 <body>
-<script src="/js/sockjs.min.js"></script>
-<script src='/js/vertx-eventbus.js'></script>
-<script src='/js/vue.js'></script>
-<div id="app">
-    <div id="lists">
-        <ul>
-            <ah-list v-for="list in lists" v-bind:key="list._id" v-bind:list="list"/>
-        </ul>
-        <input name="addList" placeholder="Neue Liste anlegen" v-on:keyup.enter="addListKey">
+<script src="/js/lib/sockjs.min.js"></script>
+<script src='/js/lib/vertx-eventbus.js'></script>
+<script src='/js/lib/vue.js'></script>
+<section class="hero">
+    <div class="hero-body">
+        <div class="container">
+            <h1 class="title">
+                Abhakeln
+            </h1>
+            <h2 class="subtitle">
+                /åbhàggln/
+            </h2>
+        </div>
     </div>
-    <div id="items">
-        <ul>
-            <ah-item v-for="item in listData.items" v-bind:key="item._id" v-bind:item="item"
-                     v-if="showDone || !item.done"/>
+</section>
+<section id="app" class="section columns">
+    <div id="lists" class="column is-one-fifth menu">
+        <p class="menu-label">Listen</p>
+        <ul class="menu-list">
+            <ah-list v-for="list in lists" v-bind:key="list._id" v-bind:selected="list._id === selectedList"
+                     v-bind:list="list"/>
         </ul>
-        <input name="addItem" placeholder="Task anlegen" v-on:keyup.enter="addItemKey">
+        <div class="field">
+            <div class="control">
+                <input class="input" name="addList" placeholder="Neue Liste anlegen" v-on:keyup.enter="addListKey">
+            </div>
+        </div>
     </div>
-    <input type="checkbox" id="showDone" v-model="showDone">
-    <label for="showDone">Erledigte Einträge zeigen</label>
-</div>
-<script src='/app.js'></script>
+    <div id="items" v-if="selectedList" class="column container">
+        <input type="checkbox" id="showDone" v-model="showDone">
+        <label for="showDone">Erledigte Einträge zeigen</label>
+        <hr>
+
+        <div class="field">
+            <div class="control">
+                <input class="input" name="addItem" placeholder="Task anlegen" v-on:keyup.enter="addItemKey">
+            </div>
+        </div>
+
+        <ah-item class="ah-item" v-for="item in listData.items" v-bind:key="item._id" v-bind:item="item"
+                 v-if="showDone || !item.done"/>
+
+    </div>
+</section>
+<footer class="footer">
+    <div class="content has-text-centered">
+        <p>
+            <strong>abhakeln</strong> | Powered by <a href="https://vertx.io">Vert.x</a> and <a
+                href="https://vuejs.org/">Vue.js</a>
+        </p>
+    </div>
+</footer>
+<script src='/js/app.js'></script>
 </body>
+
 </html>
