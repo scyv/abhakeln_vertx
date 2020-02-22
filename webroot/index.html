@@ -1,0 +1,25 @@
+<html>
+<body>
+<script src="/js/sockjs.min.js"></script>
+<script src='/js/vertx-eventbus.js'></script>
+<script src='/js/vue.js'></script>
+<div id="app">
+    <div id="lists">
+        <ul>
+            <ah-list v-for="list in lists" v-bind:key="list._id" v-bind:list="list"/>
+        </ul>
+        <input name="addList" placeholder="Neue Liste anlegen" v-on:keyup.enter="addListKey">
+    </div>
+    <div id="items">
+        <ul>
+            <ah-item v-for="item in listData.items" v-bind:key="item._id" v-bind:item="item"
+                     v-if="showDone || !item.done"/>
+        </ul>
+        <input name="addItem" placeholder="Task anlegen" v-on:keyup.enter="addItemKey">
+    </div>
+    <input type="checkbox" id="showDone" v-model="showDone">
+    <label for="showDone">Erledigte Einträge zeigen</label>
+</div>
+<script src='/app.js'></script>
+</body>
+</html>
