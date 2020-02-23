@@ -24,9 +24,12 @@ This is a demo implementation (todo app) using https://vertx.io and https://vuej
   * Make application "offline first" 
 * Add more interaction possibilities for items (comments, attachments)
 * Add notifications for items (calendar!)
+* Add list sharing, assignment of tasks
+* Add possibility for recurrent tasks
+* Add virtual lists (today, this week, my-tasks)
+* Add smart lists (make suggestions based on historic behavior (If you buy Milk every 5 days, maybe you will also need milk in 5 days?))
 * Improve this Readme
 * Add further PWA stuff (manifest, icons, app shell, ...)
-* Add list sharing, assignment of tasks
 * Opt: Try, putting the frontend into an electron/cordova container?
 * Opt: Add client side encryption of contents?
 
