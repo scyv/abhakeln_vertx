@@ -1,8 +1,16 @@
 class AbhakelnEventBus {
   constructor(appState) {
     this.appState = appState;
-    
-    const eventbus = new EventBus("/eventbus");
+      
+    const eventbus = new EventBus("/eventbus", {
+        vertxbus_reconnect_attempts_max: 500,
+        vertxbus_reconnect_delay_min: 1000,
+        vertxbus_reconnect_delay_max: 5000,
+        vertxbus_reconnect_exponent: 2,
+        vertxbus_randomization_factor: 0.5 
+     });
+    eventbus.enableReconnect(true);
+
     const ctx = this;
     eventbus.onopen = function() {
       eventbus.registerHandler("sync-queue", function(error, message) {
