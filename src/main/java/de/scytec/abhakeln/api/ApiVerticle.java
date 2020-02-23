@@ -23,6 +23,8 @@ public class ApiVerticle extends AbstractVerticle {
     public void start(Promise<Void> promise) throws Exception {
         LOGGER.info("Starting " + this.getClass().getSimpleName());
 
+        Integer apiPort = config().getInteger("API_PORT", 18080);
+
         Router mainRouter = Router.router(vertx);
         Router apiRouter = Router.router(vertx);
         mainRouter.mountSubRouter("/api", apiRouter);
@@ -44,7 +46,7 @@ public class ApiVerticle extends AbstractVerticle {
 
         HttpServer server = vertx.createHttpServer();
         server.requestHandler(mainRouter)
-                .rxListen(8080)
+                .rxListen(apiPort)
                 .subscribe();
 
         promise.complete();

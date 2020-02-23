@@ -19,6 +19,8 @@ public class SyncVerticle extends AbstractVerticle {
     @Override
     public void start(Promise<Void> promise) throws Exception {
         LOGGER.info("Starting " + this.getClass().getSimpleName());
+        Integer webPort = config().getInteger("WEB_PORT", 18081);
+
         vertx.eventBus().consumer("sync-queue", this::onMessage);
 
         Router router = Router.router(vertx);
@@ -28,7 +30,7 @@ public class SyncVerticle extends AbstractVerticle {
 
         vertx.createHttpServer()
                 .requestHandler(router)
-                .listen(8081);
+                .listen(webPort);
 
         promise.complete();
     }
