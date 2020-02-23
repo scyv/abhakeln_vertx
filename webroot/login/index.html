@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Abhakeln - login</title>
+    <link rel="stylesheet" href="/css/lib/bulma.min.css">
+    <link rel="stylesheet" href="/css/app.css">
+</head>
+
+<body>
+<script src='/js/lib/vue.js'></script>
+<div id="loginform">
+    <section class="hero">
+        <div class="hero-body">
+            <div class="container">
+                <h1 class="title">
+                    Abhakeln
+                </h1>
+                <h2 class="subtitle">
+                    /åbhàggln/
+                </h2>
+            </div>
+        </div>
+    </section>
+    <section class="section columns">
+        <div class="field">
+            <div class="control">
+                <input type="text" id="username" class="input" name="username" placeholder="Benutzername">
+            </div>
+        </div>
+        <div class="field">
+            <div class="control">
+                <input type="password" id="password" autocomplete="off" class="input" name="password"
+                       placeholder="Passwort">
+            </div>
+        </div>
+    </section>
+    <section>
+        <div>
+            <div class="control">
+                <button v-on:click="login" class="button">Login</button>
+            </div>
+            <div class="control">
+                <button v-on:click="register" class="button">Register</button>
+            </div>
+        </div>
+
+    </section>
+</div>
+<footer class="footer">
+    <div class="content has-text-centered">
+        <p>
+            <strong>abhakeln</strong> | Powered by <a href="https://vertx.io">Vert.x</a> and <a
+                href="https://vuejs.org/">Vue.js</a>
+        </p>
+    </div>
+</footer>
+<script src="login.js"></script>
+</body>
+
+</html>

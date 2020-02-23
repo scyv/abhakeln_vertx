@@ -5,7 +5,9 @@ class AbhakelnApi {
   }
 
   async loadLists() {
-    const resp = await fetch(this.apiEndpoint + "/lists/");
+    const resp = await fetch(this.apiEndpoint + "/lists/", {
+      credentials: 'include'
+    });
     const data = await resp.json();
     this._clearArray(this.appState.lists);
     data.forEach(list => {

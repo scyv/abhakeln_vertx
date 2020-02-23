@@ -1,11 +1,11 @@
 package de.scytec.abhakeln.db;
 
+import io.reactivex.Maybe;
 import io.vertx.core.Promise;
 import io.vertx.core.eventbus.DeliveryOptions;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.reactivex.core.AbstractVerticle;
-import io.vertx.reactivex.core.Vertx;
 import io.vertx.reactivex.core.eventbus.Message;
 import io.vertx.reactivex.ext.mongo.MongoClient;
 import org.slf4j.Logger;
@@ -21,40 +21,8 @@ public class DbVerticle extends AbstractVerticle {
     public void start(Promise<Void> promise) throws Exception {
         LOGGER.info("Starting " + this.getClass().getSimpleName());
 
-        JsonObject config = Vertx.currentContext().config();
-
-        String uri = config.getString("mongo_uri");
-        if (uri == null) {
-            uri = "mongodb://localhost:27017";
-        }
-        String db = config.getString("mongo_db");
-        if (db == null) {
-            db = "abhakeln";
-        }
-
-        JsonObject mongoconfig = new JsonObject()
-                .put("connection_string", uri)
-                .put("db_name", db);
-
-
-        mongoClient = MongoClient.createShared(vertx, mongoconfig);
+        mongoClient = MongoClient.createShared(vertx, new DbConfig().get(config()));
         vertx.eventBus().consumer("db-queue", this::onMessage);
-        mongoClient.createCollection("lists", res -> {
-            if (res.succeeded()) {
-                mongoClient.rxCount("lists", new JsonObject())
-                        .filter(count -> count == 0)
-                        .subscribe(count -> {
-                            JsonObject list1 = new JsonObject()
-                                    .put("name", "Haushalt");
-                            JsonObject list2 = new JsonObject()
-                                    .put("name", "Einkauf");
-
-                            mongoClient.rxSave("lists", list1).subscribe();
-                            mongoClient.rxSave("lists", list2).subscribe();
-
-                        });
-            }
-        });
 
         promise.complete();
 
@@ -83,36 +51,43 @@ public class DbVerticle extends AbstractVerticle {
 
     private void updateListItem(Message<JsonObject> msg) {
         JsonObject body = msg.body();
-        String itemId = body.getString("_id");
-        body.remove("_id");
-        LOGGER.info("Updating item: {}, {}", itemId, body);
-        mongoClient.rxUpdateCollection("items", new JsonObject().put("_id", itemId), body).subscribe(
-                updateResult -> {
-                    mongoClient.rxFindOne("items", new JsonObject().put("_id", itemId), null).subscribe(
-                            result -> {
-                                msg.reply(result);
-                                DeliveryOptions options = new DeliveryOptions().addHeader("action", "update-item-data");
-                                vertx.eventBus().publish("sync-queue", result, options);
-                            }
-                    );
-                }
-        );
+        String itemId = body.getString("itemId");
+        String userId = body.getString("userId");
+        body.remove("itemId");
+        body.remove("userId");
+
+        mongoClient.rxFindOne("items", new JsonObject().put("_id", itemId), null)
+                .map(item -> item.getString("listId"))
+                .flatMap(listId -> userHasListAccess(userId, listId))
+                .flatMap(hasAccess -> mongoClient.rxUpdateCollection("items", new JsonObject().put("_id", itemId), body))
+                .flatMap(updateResult -> mongoClient.rxFindOne("items", new JsonObject().put("_id", itemId), null))
+                .subscribe(result -> {
+                    msg.reply(result);
+                    DeliveryOptions options = new DeliveryOptions().addHeader("action", "update-item-data");
+                    vertx.eventBus().publish("sync-queue", result, options);
+                });
     }
 
     private void createListItem(Message<JsonObject> msg) {
-        mongoClient.rxSave("items", msg.body()).subscribe(
-                id -> {
-                    JsonObject newItem = msg.body().put("_id", id);
-                    msg.reply(newItem);
-                    DeliveryOptions options = new DeliveryOptions().addHeader("action", "create-list-item");
-                    vertx.eventBus().publish("sync-queue", newItem, options);
-                }
-        );
+        JsonObject newItem = msg.body();
+        userHasListAccess(newItem.getString("userId"), newItem.getString("listId")).subscribe(hasAccess -> {
+            newItem.remove("userId");
+            mongoClient.rxSave("items", newItem).subscribe(
+                    id -> {
+                        msg.reply(newItem.put("_id", id));
+                        DeliveryOptions options = new DeliveryOptions().addHeader("action", "create-list-item");
+                        vertx.eventBus().publish("sync-queue", newItem, options);
+                    }
+            );
+        });
     }
 
     private void getListData(Message<JsonObject> msg) {
-        mongoClient.rxFind("items", new JsonObject().put("listId", msg.body().getString("_id"))).subscribe(
-                result -> {
+        JsonObject listInfo = msg.body();
+        userHasListAccess(listInfo.getString("userId"), listInfo.getString("listId"))
+                .flatMap(hasAccess -> mongoClient.rxFind("items",
+                        new JsonObject().put("listId", listInfo.getString("listId"))).toMaybe())
+                .subscribe(result -> {
                     JsonObject listData = new JsonObject();
                     listData.put("items", new JsonArray(result));
                     msg.reply(listData);
@@ -131,12 +106,24 @@ public class DbVerticle extends AbstractVerticle {
     }
 
     private void findLists(Message<JsonObject> msg) {
-        mongoClient.rxFind("lists", new JsonObject()).subscribe(
+        mongoClient.rxFind("lists", new JsonObject().put("owners.userId", msg.body().getString("userId"))).subscribe(
                 result -> {
                     msg.reply(new JsonArray(result));
                 });
     }
 
+    private Maybe<Boolean> userHasListAccess(String userId, String listId) {
+        return mongoClient.rxFindOne("lists", new JsonObject().put("_id", listId), null).map(
+                result -> {
+                    JsonArray owners = result.getJsonArray("owners", new JsonArray());
+                    boolean hasAccess = owners.stream().anyMatch(o -> ((JsonObject) o).getString("userId", "").equals(userId));
+                    if (!hasAccess) {
+                        throw new RuntimeException("FORBIDDEN");
+                    }
+                    return hasAccess;
+                }
+        );
+    }
 
     @Override
     public void stop() throws Exception {
