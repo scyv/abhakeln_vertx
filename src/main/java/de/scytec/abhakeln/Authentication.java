@@ -26,8 +26,8 @@ public class Authentication {
     public void authenticate(RoutingContext context) {
         JsonObject body = context.getBodyAsJson();
         authProvider.rxAuthenticate(new JsonObject().put("username", body.getString("username")).put("password", body.getString("password")))
-                .subscribe(u -> {
-                    context.setUser(u);
+                .subscribe(user -> {
+                    context.setUser(user);
                     context.response().putHeader("Content-Type", "text/plain").end("OK");
                 }, err -> {
                     context.response().setStatusCode(403).end();
@@ -36,8 +36,12 @@ public class Authentication {
 
     public void register(RoutingContext context) {
         JsonObject body = context.getBodyAsJson();
-        authProvider.rxInsertUser(body.getString("username"), body.getString("password"), new ArrayList<>(), new ArrayList<>()).subscribe();
-        context.response().putHeader("Content-Type", "text/plain").end("OK");
+        authProvider.rxInsertUser(body.getString("username"), body.getString("password"), new ArrayList<>(), new ArrayList<>())
+                .subscribe(result -> {
+                    authenticate(context);
+                }, err -> {
+                    context.response().setStatusCode(500).end();
+                });
     }
 
 }

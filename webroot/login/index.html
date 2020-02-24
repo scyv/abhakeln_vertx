@@ -24,27 +24,41 @@
             </div>
         </div>
     </section>
-    <section class="section columns">
-        <div class="field">
-            <div class="control">
-                <input type="text" id="username" class="input" name="username" placeholder="Benutzername">
+    <section class="section">
+        <div class="container">
+            <div class="notification">
+                Bitte mit Benutzername und Passwort einloggen. Falls Sie noch keinen Account haben, können geben Sie
+                Benutzername und Passwort an und klicken auf "Neuen Account anlegen"
             </div>
-        </div>
-        <div class="field">
-            <div class="control">
-                <input type="password" id="password" autocomplete="off" class="input" name="password"
-                       placeholder="Passwort">
-            </div>
-        </div>
-    </section>
-    <section>
-        <div>
-            <div class="control">
-                <button v-on:click="login" class="button">Login</button>
-            </div>
-            <div class="control">
-                <button v-on:click="register" class="button">Register</button>
-            </div>
+            <form>
+                <div class="field">
+                    <div class="control">
+                        <input type="text" id="username" class="input is-large" name="username"
+                               placeholder="Benutzername">
+                    </div>
+                </div>
+                <div class="field">
+                    <div class="control">
+                        <input type="password" id="password" autocomplete="off" class="input is-large"
+                               name="password" placeholder="Passwort" v-on:keydown.enter="login">
+                    </div>
+                </div>
+                <div v-if="error" class="notification is-danger">
+                    <button class="delete" v-on:click="closeError"></button>
+                    {{ error }}
+                </div>
+
+                <div class="field is-grouped">
+                    <div class="control">
+                        <button class="button is-link" v-on:click="login" type="button">Login</button>
+                    </div>
+                    <div class="control">
+                        <button class="button is-link is-light" v-on:click="register" type="button">Neuen Account
+                            anlegen
+                        </button>
+                    </div>
+                </div>
+            </form>
         </div>
 
     </section>
@@ -52,8 +66,9 @@
 <footer class="footer">
     <div class="content has-text-centered">
         <p>
-            <strong>abhakeln</strong> | Powered by <a href="https://vertx.io">Vert.x</a> and <a
-                href="https://vuejs.org/">Vue.js</a>
+            <strong>abhakeln</strong> - minimalistic yet powerful | Powered by <a href="https://vertx.io">Vert.x</a> and
+            <a
+                    href="https://vuejs.org/">Vue.js</a>
         </p>
     </div>
 </footer>
