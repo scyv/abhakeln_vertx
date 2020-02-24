@@ -28,7 +28,9 @@ public class WebVerticle extends AbstractVerticle {
         Router router = Router.router(vertx);
 
         router.route().handler(ResponseContentTypeHandler.create());
-        router.route().handler(SessionHandler.create(LocalSessionStore.create(vertx)).setAuthProvider(auth.getAuthProvider()));
+        router.route().handler(SessionHandler.create(LocalSessionStore.create(vertx))
+                .setSessionTimeout(2592000000L) // 30 days
+                .setAuthProvider(auth.getAuthProvider()));
 
         router.route().handler(BodyHandler.create());
         router.post("/login/login/").handler(auth::authenticate);
