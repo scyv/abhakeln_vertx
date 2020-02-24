@@ -2,11 +2,9 @@ package de.scytec.abhakeln.api;
 
 import de.scytec.abhakeln.Authentication;
 import io.vertx.core.Promise;
-import io.vertx.core.json.JsonObject;
 import io.vertx.ext.bridge.PermittedOptions;
 import io.vertx.ext.web.handler.sockjs.BridgeOptions;
 import io.vertx.reactivex.core.AbstractVerticle;
-import io.vertx.reactivex.core.eventbus.Message;
 import io.vertx.reactivex.core.http.HttpServer;
 import io.vertx.reactivex.ext.web.Router;
 import io.vertx.reactivex.ext.web.handler.*;
@@ -24,12 +22,10 @@ public class WebVerticle extends AbstractVerticle {
         LOGGER.info("Starting " + this.getClass().getSimpleName());
 
         Integer webPort = config().getInteger("WEB_PORT", 18080);
-        vertx.eventBus().consumer("sync-queue", this::onMessage);
 
         Authentication auth = new Authentication(vertx, config());
 
         Router router = Router.router(vertx);
-
 
         router.route().handler(ResponseContentTypeHandler.create());
         router.route().handler(SessionHandler.create(LocalSessionStore.create(vertx)).setAuthProvider(auth.getAuthProvider()));
@@ -49,7 +45,7 @@ public class WebVerticle extends AbstractVerticle {
         router.post("/api/lists/:id/").produces("application/json").handler(api::createListItem);
         router.put("/api/items/:id/").produces("application/json").handler(api::updateListItem);
 
-        router.route("/eventbus/*").handler(authHandler).handler(eventBusHandler());
+        router.route("/eventbus/*").handler(authHandler).handler(eventBusHandler(auth));
         router.route().handler(staticHandler());
 
         HttpServer server = vertx.createHttpServer();
@@ -60,13 +56,12 @@ public class WebVerticle extends AbstractVerticle {
         promise.complete();
     }
 
-
-    private SockJSHandler eventBusHandler() {
+    private SockJSHandler eventBusHandler(Authentication auth) {
         BridgeOptions options = new BridgeOptions()
                 .addOutboundPermitted(new PermittedOptions().setAddressRegex("sync-queue"));
         //.addInboundPermitted(new PermittedOptions().setAddressRegex("sync-queue"));
         SockJSHandler sockJSHandler = SockJSHandler.create(vertx);
-        sockJSHandler.bridge(options);
+        sockJSHandler.bridge(options, auth::authenticate);
         return sockJSHandler;
     }
 
@@ -75,8 +70,4 @@ public class WebVerticle extends AbstractVerticle {
                 .setCachingEnabled(config().getBoolean("WEB_CACHING_ENABLED", false));
     }
 
-    private void onMessage(Message<JsonObject> msg) {
-        LOGGER.info(String.valueOf(msg.headers()));
-        LOGGER.info(String.valueOf(msg.body()));
-    }
 }

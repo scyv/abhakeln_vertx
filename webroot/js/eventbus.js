@@ -20,6 +20,7 @@ class AbhakelnEventBus {
   }
 
   dispatch(action, body) {
+    console.debug("Message from Server:", action, body);
     switch (action) {
       case "create-list":
         this.appState.lists.push(body);

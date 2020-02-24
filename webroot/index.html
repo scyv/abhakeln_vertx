@@ -26,12 +26,13 @@
     </div>
 </section>
 <section id="app" class="section columns">
-    <div id="lists" class="column is-one-fifth menu">
+    <div id="lists" class="column is-two-fifths menu">
         <p class="menu-label">Listen</p>
         <ul class="menu-list">
             <ah-list v-for="list in lists" v-bind:key="list._id" v-bind:selected="list._id === selectedList"
                      v-bind:list="list"/>
         </ul>
+        <hr>
         <div class="field">
             <div class="control">
                 <input class="input" name="addList" placeholder="Neue Liste anlegen" v-on:keyup.enter="addListKey">

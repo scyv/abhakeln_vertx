@@ -49,7 +49,7 @@ public class Api {
                 .subscribe(item -> {
                     routingContext.response().end(((JsonObject) item.body()).encodePrettily());
                 }, error -> {
-                    error.printStackTrace();
+                    LOGGER.error("Could not update item {}", itemId, error);
                     routingContext.response()
                             .setStatusCode(500).end(error.getMessage());
                 });
@@ -63,6 +63,10 @@ public class Api {
         vertx.eventBus().rxRequest("db-queue", newList, options)
                 .subscribe(list -> {
                     routingContext.response().end(((JsonObject) list.body()).encodePrettily());
+                }, error -> {
+                    LOGGER.error("Could not create list", error);
+                    routingContext.response()
+                            .setStatusCode(500).end(error.getMessage());
                 });
     }
 
@@ -74,7 +78,7 @@ public class Api {
         ).subscribe(lists -> {
             routingContext.response().end(((JsonArray) lists.body()).encodePrettily());
         }, error -> {
-            error.printStackTrace();
+            LOGGER.error("Could not retrieve lists", error);
             routingContext.response()
                     .setStatusCode(500).end(error.getMessage());
         });
@@ -88,7 +92,7 @@ public class Api {
                 .subscribe(listData -> {
                     routingContext.response().end(((JsonObject) listData.body()).encodePrettily());
                 }, error -> {
-                    error.printStackTrace();
+                    LOGGER.error("Could not retrieve list data for list {}", listId, error);
                     routingContext.response()
                             .setStatusCode(500).end(error.getMessage());
                 });
@@ -106,11 +110,13 @@ public class Api {
         newItem.put("listId", listId);
         newItem.put("done", false);
 
-        LOGGER.info("creating item" + newItem);
-
         vertx.eventBus().rxRequest("db-queue", newItem, options)
                 .subscribe(list -> {
                     routingContext.response().end(((JsonObject) list.body()).encodePrettily());
+                }, error -> {
+                    LOGGER.error("Could not create item for list {}", listId, error);
+                    routingContext.response()
+                            .setStatusCode(500).end(error.getMessage());
                 });
     }
 

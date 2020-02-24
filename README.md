@@ -18,7 +18,7 @@ This is a demo implementation (todo app) using https://vertx.io and https://vuej
 
 ### Things todo, to get this todo app neat and nice
 
-* Add authentication/authorization
+* ~~Add authentication/authorization~
 * Add client side encryption of contents
 * Add Service Worker (offline mode)
   * Architecture has to be changed to load "all" items (currently only the items of the currently selected list are loaded)
@@ -32,6 +32,7 @@ This is a demo implementation (todo app) using https://vertx.io and https://vuej
 * Improve this Readme
 * Add further PWA stuff (manifest, icons, app shell, ...)
 * Opt: Try, putting the frontend into an electron/cordova container?
+* Opt: Make a reusable framework from the sync stuff 
 
 
 #### "Abhakeln" ???

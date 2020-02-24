@@ -34,8 +34,9 @@ const app = new Vue({
         });
     },
     register(evt) {
+      const pwdEl = document.querySelector("#password");
       const username = document.querySelector("#username").value;
-      const password = document.querySelector("#password").value;
+      const password = pwdEl.value;
       fetch("/login/register/", {
         method: "POST",
         headers: {
@@ -45,7 +46,21 @@ const app = new Vue({
           username,
           password
         })
-      });
+      })
+      .then(response => response.text())
+        .then(text => {
+          pwdEl.value = "";
+          console.log(text);
+          if (text === "OK") {
+            location.href = "/";
+          } else {
+            this.error = "Registrierung nicht möglich.";
+          }
+        })
+        .catch(err => {
+          pwdEl.value = "";
+          this.error = err;
+        });
     },
     closeError(evt) {
       this.error = null;
