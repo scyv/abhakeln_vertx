@@ -8,6 +8,7 @@ const app = new Vue({
       const pwdEl = document.querySelector("#password");
       const username = document.querySelector("#username").value;
       const password = pwdEl.value;
+      const crypto = new SodiumWrapper();
       fetch("/login/login/", {
         method: "POST",
         headers: {
@@ -15,15 +16,16 @@ const app = new Vue({
         },
         body: JSON.stringify({
           username,
-          password
+          password: crypto.hash(password)
         })
       })
         .then(response => response.text())
         .then(text => {
           pwdEl.value = "";
-          console.log(text);
           if (text === "OK") {
-            location.href = "/";
+            new Storage().addMasterKey(crypto.hash(password)).then(() => {
+              location.href = "/";
+            });
           } else {
             this.error = "Login nicht möglich. Sind Benutzername und Passwort korrekt angegeben?";
           }
@@ -37,6 +39,7 @@ const app = new Vue({
       const pwdEl = document.querySelector("#password");
       const username = document.querySelector("#username").value;
       const password = pwdEl.value;
+      const crypto = new SodiumWrapper();
       fetch("/login/register/", {
         method: "POST",
         headers: {
@@ -44,15 +47,16 @@ const app = new Vue({
         },
         body: JSON.stringify({
           username,
-          password
+          password: crypto.hash(password)
         })
       })
-      .then(response => response.text())
+        .then(response => response.text())
         .then(text => {
           pwdEl.value = "";
-          console.log(text);
           if (text === "OK") {
-            location.href = "/";
+            new Storage().addMasterKey(crypto.hash(password)).then(() => {
+              location.href = "/";
+            });
           } else {
             this.error = "Registrierung nicht möglich.";
           }

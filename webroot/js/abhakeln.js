@@ -42,9 +42,8 @@ class Abhakeln {
       props: ["list", "selected"],
       methods: {
         select() {
-          const listId = this.list._id;
-          self.appState.selectedList = listId;
-          self.api.loadItems(listId);
+          self.appState.selectedList = this.list;
+          self.api.loadItems(this.list);
         }
       },
       template: `
@@ -56,10 +55,13 @@ class Abhakeln {
       props: ["item"],
       methods: {
         select(evt) {
-          self.api.updateItem({
-            _id: this.item._id,
-            done: !this.item.done
-          });
+          self.api.updateItem(
+            {
+              _id: this.item._id,
+              done: !this.item.done
+            },
+            self.appState.selectedList
+          );
         }
       },
       template: `

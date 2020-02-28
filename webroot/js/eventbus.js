@@ -31,7 +31,9 @@ class AbhakelnEventBus {
       case "update-item-data":
         const localItem = this.appState.listData.items.find(i => i._id === body._id);
         localItem.done = body.done;
-        localItem.tasl = body.task;
+        if (body.task) {
+          localItem.task = body.task;
+        }
         break;
       default:
         console.warn("Unknown action (" + action + "). Dispatching nothing at all.");
