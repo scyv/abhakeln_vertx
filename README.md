@@ -19,8 +19,8 @@ This is a demo implementation (todo app) using https://vertx.io and https://vuej
 ### Things todo, to get this todo app neat and nice
 
 * ~~Add authentication/authorization~
-* Add client side encryption of contents
 * Add Service Worker (offline mode)
+* Add client side encryption of contents
   * Architecture has to be changed to load "all" items (currently only the items of the currently selected list are loaded)
   * Make application "offline first" 
 * Add more interaction possibilities for items (comments, attachments)
