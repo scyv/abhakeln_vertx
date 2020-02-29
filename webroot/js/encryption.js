@@ -1,5 +1,4 @@
-class SodiumWrapper {
-
+class Encryption {
   hash(content) {
     return sodium.to_hex(sodium.crypto_generichash(64, content));
   }
@@ -32,4 +31,34 @@ class SodiumWrapper {
     return sodium.crypto_pwhash_str_verify(hash, password);
   }
 
+  encryptListData(listData, masterKey) {
+    const listKey = this.createKey();
+    listData.key = this.encrypt(listKey, masterKey);
+    const copy = Object.assign({}, listData);
+    copy.name = this.encrypt(copy.name, listKey);
+    return copy;
+  }
+
+  encryptItemData(itemData, listData, userId, masterKey) {
+    const copy = Object.assign({}, itemData);
+    if (copy.task) {
+      copy.task = this.encrypt(copy.task, this.decryptListKey(listData, userId, masterKey));
+    }
+    return copy;
+  }
+
+  decryptListData(listData, userId, masterKey) {
+    listData.name = this.decrypt(listData.name, this.decryptListKey(listData, userId, masterKey));
+    return listData;
+  }
+
+  decryptItemData(itemData, listData, userId, masterKey) {
+    itemData.task = this.decrypt(itemData.task, this.decryptListKey(listData, userId, masterKey));
+    return itemData;
+  }
+
+  decryptListKey(listData, userId, masterKey) {
+    const listKey = listData.owners.filter(o => o.userId === userId)[0].key;
+    return this.decrypt(listKey, masterKey);
+  }
 }

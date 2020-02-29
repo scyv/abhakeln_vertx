@@ -9,12 +9,16 @@ const appState = {
   masterKey: null
 };
 
-const eventbus = new AbhakelnEventBus(appState);
-const api = new AbhakelnApi(appState, "/api");
+const eventbus = new AbhakelnEventBus(appState, EVENTBUS_ENDPOINT);
+const api = new AbhakelnApi(appState, API_ENDPOINT);
 const app = new Abhakeln(appState, api);
 
 (async () => {
-  appState.masterKey = (await new Storage().getMasterKey()).key;
+  const storage = new Storage();
+  appState.masterKey = (await storage.getMasterKey()).key;
+  appState.userData = {
+    userId: (await storage.getUserData()).id
+  };
   await sodium.ready;
   app.init();
   api.loadLists();

@@ -1,30 +1,37 @@
+const webEndpoint = WEB_ENDPOINT;
+
 const app = new Vue({
   el: "#loginform",
   data: {
     error: null
   },
   methods: {
+    async storeUserdata(userId, password) {
+      const storage = new Storage();
+      await storage.addMasterKey(password);
+      await storage.addUserData(userId);
+    },
     login(evt) {
       const pwdEl = document.querySelector("#password");
       const username = document.querySelector("#username").value;
       const password = pwdEl.value;
-      const crypto = new SodiumWrapper();
-      fetch("/login/login/", {
+      const encryption = new Encryption();
+      fetch(webEndpoint + "login/login/", {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
         },
         body: JSON.stringify({
           username,
-          password: crypto.hash(password)
+          password: encryption.hash(password)
         })
       })
-        .then(response => response.text())
-        .then(text => {
+        .then(response => response.json())
+        .then(response => {
           pwdEl.value = "";
-          if (text === "OK") {
-            new Storage().addMasterKey(crypto.hash(password)).then(() => {
-              location.href = "/";
+          if (response.status === "OK") {
+            this.storeUserdata(response.userId, encryption.hash(password)).then(() => {
+              location.href = "../";
             });
           } else {
             this.error = "Login nicht möglich. Sind Benutzername und Passwort korrekt angegeben?";
@@ -39,23 +46,23 @@ const app = new Vue({
       const pwdEl = document.querySelector("#password");
       const username = document.querySelector("#username").value;
       const password = pwdEl.value;
-      const crypto = new SodiumWrapper();
-      fetch("/login/register/", {
+      const encryption = new Encryption();
+      fetch(webEndpoint + "login/register/", {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
         },
         body: JSON.stringify({
           username,
-          password: crypto.hash(password)
+          password: encryption.hash(password)
         })
       })
-        .then(response => response.text())
-        .then(text => {
+        .then(response => response.json())
+        .then(response => {
           pwdEl.value = "";
-          if (text === "OK") {
-            new Storage().addMasterKey(crypto.hash(password)).then(() => {
-              location.href = "/";
+          if (response.status === "OK") {
+            this.storeUserdata(response.userId, encryption.hash(password)).then(() => {
+              location.href = "../";
             });
           } else {
             this.error = "Registrierung nicht möglich.";

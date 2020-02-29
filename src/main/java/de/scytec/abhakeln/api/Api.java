@@ -59,9 +59,11 @@ public class Api {
         DeliveryOptions options = new DeliveryOptions().addHeader("action", "create-list");
         JsonObject body = routingContext.getBodyAsJson();
         JsonObject newList = new JsonObject()
-                .put("owners", new JsonArray().add(new JsonObject().put("userId", getUserId(routingContext))))
-                .put("name", body.getString("name"))
-                .put("key", body.getString("key"));
+                .put("owners", new JsonArray().add(new JsonObject()
+                        .put("userId", getUserId(routingContext))
+                        .put("key", body.getString("key"))))
+                .put("name", body.getString("name"));
+
         vertx.eventBus().rxRequest("db-queue", newList, options)
                 .subscribe(list -> {
                     routingContext.response().end(((JsonObject) list.body()).encodePrettily());

@@ -37,9 +37,12 @@ public class Authentication {
                         .put("username", body.getString("username").toLowerCase())
                         .put("password", body.getString("password")))
                 .subscribe(user -> {
+                    String userId = user.principal().getString("_id");
                     context.setUser(user);
-                    context.session().put("userId", user.principal().getString("userId"));
-                    context.response().putHeader("Content-Type", "text/plain").end("OK");
+                    context.session().put("userId", userId);
+                    context.response().end(new JsonObject()
+                            .put("status", "OK")
+                            .put("userId", userId).encode());
                 }, err -> {
                     context.response().setStatusCode(403).end();
                 });
