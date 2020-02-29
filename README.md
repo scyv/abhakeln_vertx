@@ -1,9 +1,10 @@
 # abhakeln-vertx-vue
 
-This is a demo implementation (todo app) using https://vertx.io and https://vuejs.org/
+This is a todo app using https://vertx.io and https://vuejs.org/
 
-* Message based
 * Live Updates (SockJS Event Bridge) for Client
+* Client side encryption using XChaCha20-Poly1305 (passwords or clear text are never sent to the server!)
+* Message based
 * Mongo Database
 
 ### Get running
@@ -13,14 +14,13 @@ This is a demo implementation (todo app) using https://vertx.io and https://vuej
  * create a database namely ```abhakeln```
  * run ```mvn compile vertx:run```
    * (this will start the app in development mode with automatic verticle redeployment on code change)
- * move your browser to http://localhost:8081/
- * the api is exposed on http://localhost:8080/api/
+ * move your browser to http://localhost:18080/
 
 ### Things todo, to get this todo app neat and nice
 
-* ~~Add authentication/authorization~
+* ~~Add authentication/authorization~~
+* ~~Add client side encryption of contents~~
 * Add Service Worker (offline mode)
-* Add client side encryption of contents
   * Architecture has to be changed to load "all" items (currently only the items of the currently selected list are loaded)
   * Make application "offline first" 
 * Add more interaction possibilities for items (comments, attachments)
