@@ -62,7 +62,8 @@ public class Api {
                 .put("owners", new JsonArray().add(new JsonObject()
                         .put("userId", getUserId(routingContext))
                         .put("key", body.getString("key"))))
-                .put("name", body.getString("name"));
+                .put("name", body.getString("name"))
+                .put("folder", body.getString("folder", ""));
 
         vertx.eventBus().rxRequest("db-queue", newList, options)
                 .subscribe(list -> {
@@ -112,7 +113,12 @@ public class Api {
         newItem.put("userId", getUserId(routingContext));
         newItem.put("task", json.getString("task"));
         newItem.put("listId", listId);
-        newItem.put("done", false);
+        newItem.put("done", json.getBoolean("done", false));
+        newItem.put("notes", json.getString("notes", ""));
+        newItem.put("createdAt", json.getString("createdAt", ""));
+        newItem.put("completedAt", json.getString("completedAt", ""));
+        newItem.put("dueDate", json.getString("dueDate", ""));
+        newItem.put("reminder", json.getString("reminder", ""));
 
         vertx.eventBus().rxRequest("db-queue", newItem, options)
                 .subscribe(list -> {

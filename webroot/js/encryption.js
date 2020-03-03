@@ -36,13 +36,20 @@ class Encryption {
     listData.key = this.encrypt(listKey, masterKey);
     const copy = Object.assign({}, listData);
     copy.name = this.encrypt(copy.name, listKey);
+    if (copy.folder) {
+      copy.folder = this.encrypt(copy.folder, listKey);
+    }
     return copy;
   }
 
   encryptItemData(itemData, listData, userId, masterKey) {
     const copy = Object.assign({}, itemData);
+    const listKey = this.decryptListKey(listData, userId, masterKey);
     if (copy.task) {
-      copy.task = this.encrypt(copy.task, this.decryptListKey(listData, userId, masterKey));
+      copy.task = this.encrypt(copy.task, listKey);
+    }
+    if (copy.notes) {
+      copy.notes = this.encrypt(copy.notes, listKey);
     }
     return copy;
   }

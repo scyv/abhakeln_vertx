@@ -29,7 +29,7 @@ class AbhakelnApi {
   }
 
   createList(listData) {
-    fetch(this.apiEndpoint + "lists/", {
+    return fetch(this.apiEndpoint + "lists/", {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
@@ -39,7 +39,7 @@ class AbhakelnApi {
   }
 
   createItem(itemData, list) {
-    fetch(this.apiEndpoint + "lists/" + list._id + "/", {
+    return fetch(this.apiEndpoint + "lists/" + list._id + "/", {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
@@ -49,7 +49,7 @@ class AbhakelnApi {
   }
 
   updateItem(itemData, list) {
-    fetch(this.apiEndpoint + "items/" + itemData._id + "/", {
+    return fetch(this.apiEndpoint + "items/" + itemData._id + "/", {
       method: "PUT",
       headers: {
         "Content-Type": "application/json"

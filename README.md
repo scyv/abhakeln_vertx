@@ -20,6 +20,7 @@ This is a todo app using https://vertx.io and https://vuejs.org/
 
 * ~~Add authentication/authorization~~
 * ~~Add client side encryption of contents~~
+* Add Wunderlist import
 * Add Service Worker (offline mode)
   * Architecture has to be changed to load "all" items (currently only the items of the currently selected list are loaded)
   * Make application "offline first" 

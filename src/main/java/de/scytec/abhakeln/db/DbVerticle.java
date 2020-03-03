@@ -27,8 +27,12 @@ public class DbVerticle extends AbstractVerticle {
         mongoClient = MongoClient.createShared(vertx, new DbConfig().get(config()));
         vertx.eventBus().consumer("db-queue", this::onMessage);
 
-        promise.complete();
+        mongoClient.rxFindOne("lists", new JsonObject(), new JsonObject()).subscribe(list -> {
+        }, err -> {
+            LOGGER.error("Could not read from database", err);
+        });
 
+        promise.complete();
     }
 
     private void onMessage(Message<JsonObject> msg) {
