@@ -7,7 +7,9 @@ const appState = {
     items: []
   },
   masterKey: null,
-  wunderlistImportVisible: false
+  wunderlistImportVisible: false,
+  listsVisible: true,
+  itemsVisible: false
 };
 
 const eventbus = new AbhakelnEventBus(appState, EVENTBUS_ENDPOINT);

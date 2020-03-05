@@ -9,6 +9,16 @@ class Abhakeln {
     this._createApp();
   }
 
+  showItems() {
+    this.appState.listsVisible = false;
+    this.appState.itemsVisible = true;
+  }
+
+  showLists() {
+    this.appState.listsVisible = true;
+    this.appState.itemsVisible = false;
+  }
+
   _createApp() {
     const self = this;
     new Vue({
@@ -34,6 +44,9 @@ class Abhakeln {
         },
         showWunderlistImport() {
           self.appState.wunderlistImportVisible = true;
+        },
+        showLists() {
+          self.showLists();
         }
       }
     });
@@ -47,10 +60,13 @@ class Abhakeln {
         select() {
           self.appState.selectedList = this.list;
           self.api.loadItems(this.list);
+          self.showItems();
         }
       },
       template: `
+                <transition name="fade">
                 <li v-bind:id="list._id" v-on:click="select"><a v-bind:class="{'is-active': selected}">{{list.name}}</a></li>
+                </transition>
               `
     });
 
@@ -68,10 +84,12 @@ class Abhakeln {
         }
       },
       template: `
-              <div>
-                <input v-on:input="select" type="checkbox" v-bind:id="item._id" v-model="item.done">
-                <label class="checkbox" v-bind:for="item._id">{{ item.task }}</label>
-              </div>
+              <transition name="fade">
+              <label class="ah-checkbox ah-checkbox-label">{{ item.task }}
+                  <input type="checkbox" checked="checked" v-on:input="select" v-bind:id="item._id" v-model="item.done" />
+                  <div class="ah-checkbox-check"></div>
+              </label>
+              </transition>
               `
     });
 
@@ -164,15 +182,15 @@ class Abhakeln {
             <ol style="padding: 10px">
               <li>Erstellen Sie über <a target="_blank" href="https://export.wunderlist.com/export">https://export.wunderlist.com/export</a> den Wunderlist Export</li>
               <li>Laden Sie die dort erstellte ZIP Datei herunter</li>
-              <li>Entpacken Sie diese ZIP Datei auf Ihrer Festplatte</li>
-              <li>Wählen Sie in folgendem Eingabefeld die Datei "Tasks.json" aus:</li>
+              <li>Entpacken Sie diese ZIP Datei auf Ihre Festplatte</li>
+              <li>Wählen Sie in folgendem Eingabefeld aus dem entpackten Ordner (Wunderlist-2020xxxx) die Datei "Tasks.json" aus:</li>
             </ol>
             <div class="field">
               <div class="control">
                 <input type="file" class="input" placeholder="Wunderlist Import" v-on:change="loadLists">
               </div>
             </div>
-            <div v-if="lists.length > 0">Wählen Sie die Listen aus, die Importiert werden sollen:</div>
+            <div v-if="lists.length > 0">Wählen Sie die Listen aus, die importiert werden sollen:</div>
             <div v-for="list in lists" class="import-item" v-bind:class="{'import-success': list.importdone}">
                 <input type="checkbox" v-if="list.importdone===false" v-bind:id="list.id" v-model="list.import">
                 <label class="checkbox" v-bind:for="list.id">{{ list.title }}</label>
