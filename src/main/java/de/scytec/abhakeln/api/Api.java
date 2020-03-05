@@ -57,13 +57,17 @@ public class Api {
 
     public void createList(RoutingContext routingContext) {
         DeliveryOptions options = new DeliveryOptions().addHeader("action", "create-list");
-        JsonObject body = routingContext.getBodyAsJson();
+        JsonObject json = routingContext.getBodyAsJson();
         JsonObject newList = new JsonObject()
                 .put("owners", new JsonArray().add(new JsonObject()
                         .put("userId", getUserId(routingContext))
-                        .put("key", body.getString("key"))))
-                .put("name", body.getString("name"))
-                .put("folder", body.getString("folder", ""));
+                        .put("key", json.getString("key"))))
+                .put("name", json.getString("name"))
+                .put("folder", json.getString("folder", ""));
+
+        if (json.containsKey("importId")) {
+            newList.put("importId", json.getInteger("importId"));
+        }
 
         vertx.eventBus().rxRequest("db-queue", newList, options)
                 .subscribe(list -> {
@@ -119,6 +123,9 @@ public class Api {
         newItem.put("completedAt", json.getString("completedAt", ""));
         newItem.put("dueDate", json.getString("dueDate", ""));
         newItem.put("reminder", json.getString("reminder", ""));
+        if (json.containsKey("importId")) {
+            newItem.put("importId", json.getInteger("importId"));
+        }
 
         vertx.eventBus().rxRequest("db-queue", newItem, options)
                 .subscribe(list -> {

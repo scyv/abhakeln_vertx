@@ -2,11 +2,12 @@
 const appState = {
   lists: [],
   selectedList: null,
-  showDone: true,
+  showDone: false,
   listData: {
     items: []
   },
-  masterKey: null
+  masterKey: null,
+  wunderlistImportVisible: false
 };
 
 const eventbus = new AbhakelnEventBus(appState, EVENTBUS_ENDPOINT);

@@ -11,29 +11,18 @@
 
 <body>
 <script src='./js/lib/vue.js'></script>
-<section class="hero">
-    <div class="hero-body">
-        <div class="container">
-            <h1 class="title">
-                Abhakeln
-            </h1>
-            <h2 class="subtitle">
-                /åbhàggln/
-            </h2>
-        </div>
-    </div>
-</section>
-<section id="app" class="section columns">
-    <div id="lists" class="column is-two-fifths menu">
-        <p class="menu-label">Listen</p>
-        <ul class="menu-list">
-            <ah-list v-for="list in lists" v-bind:key="list._id" v-bind:selected="list._id === selectedList._id"
-                     v-bind:list="list"/>
-        </ul>
-        <hr>
-        <div class="field">
-            <div class="control">
-                <input class="input" name="addList" placeholder="Neue Liste anlegen" v-on:keyup.enter="addListKey">
+<div id="app">
+    <section class="section columns">
+        <div id="lists" class="column is-two-fifths menu">
+            <p class="menu-label">Listen</p>
+            <ul class="menu-list">
+                <ah-list v-for="list in lists" v-bind:key="list._id" v-bind:selected="list._id === selectedList._id"
+                         v-bind:list="list"/>
+            </ul>
+            <hr>
+            <div class="field">
+                <div class="control">
+                    <input class="input" name="addList" placeholder="Neue Liste anlegen" v-on:keyup.enter="addListKey">
             </div>
         </div>
     </div>
@@ -52,12 +41,18 @@
                  v-if="showDone || !item.done"/>
 
     </div>
-    <div id="wunderlistImport">
-
-        <ah-wunderlist-import/>
-
-    </div>
-</section>
+        <div id="wunderlistImport">
+            <ah-wunderlist-import class="ah-import-modal" v-bind:visible="wunderlistImportVisible"/>
+        </div>
+    </section>
+    <section>
+        <div class="content has-text-centered">
+            <button type="button" class="button is-text is-small" v-on:click="showWunderlistImport">Import von
+                Wunderlist
+            </button>
+        </div>
+    </section>
+</div>
 <footer class="footer">
     <div class="content has-text-centered">
         <p>
