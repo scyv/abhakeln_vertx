@@ -65,7 +65,7 @@ class Abhakeln {
       },
       template: `
                 <transition name="fade">
-                <li v-bind:id="list._id" v-on:click="select"><a v-bind:class="{'is-active': selected}">{{list.name}}</a></li>
+                <li v-bind:id="list._id" v-on:click="select" v-bind:class="{'is-active': selected}">{{list.name}}</li>
                 </transition>
               `
     });

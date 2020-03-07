@@ -12,32 +12,29 @@
 <body>
 <script src='./js/lib/vue.js'></script>
 <div id="app">
-    <section class="section columns">
-        <div id="lists" class="column is-two-fifths menu" v-bind:class="{'is-hidden-mobile': itemsVisible}">
-            <p class="menu-label">Listen</p>
-            <ul class="menu-list">
-                <ah-list v-for="list in lists" v-bind:key="list._id" v-bind:selected="list._id === selectedList._id"
-                         v-bind:list="list"/>
-            </ul>
-            <hr>
-            <div class="field">
-                <div class="control">
-                    <input class="input" name="addList" placeholder="Neue Liste anlegen"
-                           v-on:keyup.enter="addListKey">
-                </div>
+    <div id="lists" class="menu" v-bind:class="{'is-hidden-mobile': itemsVisible}">
+        <ul>
+            <ah-list v-for="list in lists" v-bind:key="list._id" v-bind:selected="list._id === selectedList._id"
+                     v-bind:list="list"/>
+        </ul>
+        <div class="field">
+            <div class="control">
+                <input class="input" name="addList" placeholder="Neue Liste anlegen"
+                       v-on:keyup.enter="addListKey">
             </div>
         </div>
-        <div id="items" v-if="selectedList" class="column container" v-bind:class="{'is-hidden-mobile': listsVisible}">
-            <div class="level list-title is-mobile">
-                <div class="level-left">
-                    <button type="button" class="level-item button is-small is-light is-hidden-tablet"
-                            v-on:click="showLists">&laquo; Zurück
-                    </button>
-                    <div class="level-item">{{selectedList.name}}</div>
-                </div>
+    </div>
+    <div id="items" v-if="selectedList" v-bind:class="{'is-hidden-mobile': listsVisible}">
+        <div class="level list-title is-mobile">
+            <div class="level-left">
+                <button type="button" class="level-item button is-small is-light is-hidden-tablet"
+                        v-on:click="showLists">&laquo; Zurück
+                </button>
+                <div class="level-item">{{selectedList.name}}</div>
             </div>
-            <div class="field">
-                <div class="control">
+        </div>
+        <div class="field">
+            <div class="control">
                     <input class="input" name="addItem" placeholder="Aufgabe anlegen" v-on:keyup.enter="addItemKey">
                 </div>
             </div>
@@ -45,39 +42,26 @@
                 <ah-item class="ah-item" v-for="item in listData.items" v-bind:key="item._id" v-bind:item="item"
                          v-if="!item.done"/>
             </div>
-            <label class="show-done-checkbox ah-checkbox ah-checkbox-label">
-                Erledigte Einträge zeigen
-                <input type="checkbox" id="showDone" v-model="showDone"/>
-                <div class="ah-checkbox-check"></div>
-            </label>
-            <div>
-                <ah-item class="ah-item" v-for="item in listData.items" v-bind:key="item._id" v-bind:item="item"
-                         v-if="showDone && item.done"/>
-            </div>
-
+        <label class="show-done-checkbox ah-checkbox ah-checkbox-label">
+            Erledigte Einträge zeigen
+            <input type="checkbox" id="showDone" v-model="showDone"/>
+            <div class="ah-checkbox-check"></div>
+        </label>
+        <div>
+            <ah-item class="ah-item" v-for="item in listData.items" v-bind:key="item._id" v-bind:item="item"
+                     v-if="showDone && item.done"/>
         </div>
-
         <div id="wunderlistImport">
             <ah-wunderlist-import class="ah-import-modal" v-bind:visible="wunderlistImportVisible"/>
         </div>
-    </section>
-    <section class="footer-actions">
         <div class="content has-text-centered">
             <button type="button" class="button is-danger is-small" v-on:click="showWunderlistImport">Import von
                 Wunderlist
             </button>
         </div>
-    </section>
-</div>
-<footer class="footer">
-    <div class="content has-text-centered">
-        <p>
-            <strong>abhakeln</strong> - minimalistic yet powerful | Powered by <a href="https://vertx.io">Vert.x</a>
-            and
-            <a href="https://vuejs.org/">Vue.js</a>
-        </p>
+
     </div>
-</footer>
+</div>
 <script src="./js/lib/sockjs.min.js"></script>
 <script src='./js/lib/vertx-eventbus.js'></script>
 <script src="./js/lib/sodium.js"></script>

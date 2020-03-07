@@ -1,53 +1,62 @@
 #app {
-  background: #333;
+  height: 100vh;
+  overflow: hidden;
+  display: flex;
 }
 
 #lists {
-  background: #eeeeee;
-  min-height: 100vh;
+  background: #ffffff;
+  overflow-x: hidden;
+  overflow-y: auto;  
+  flex-grow: 1;
+  flex-shrink: 0;
+  padding: 10px 0px;
 }
 
 #items {
-  background: #333;
-  min-height: 100vh;
-}
-
-.footer-actions {
-  padding: 5px;
+  background:url("background.jpg");
+  overflow-x: hidden;
+  overflow-y: auto;
+  flex-grow: 1;
+  padding: 10px 10px;
 }
 
 .list-title {
-  color: #ffffff;
+  color: #333333;
   font-weight: bold;
   margin-bottom: 10px !important;
 }
 
-.section {
-  padding: 1rem 0rem;
-  margin: 0;
+.list-title div.level-item {
+  padding-left: 10px;
 }
 
 @media screen and (min-width: 769px), print {
-  #app {
-    height: 100vh;
-  }
-  
-  .section {
-    height: 100%;
-    overflow: hidden;
-  }
-  
+ 
   #lists {
-    width: 330px;
-    height: 100%;
-    overflow-x: hidden;
-    overflow-y: auto;  
+    flex-basis: 330px;
+    flex-grow: 0;
+    border-right: 1px solid #cccccc;
   }
-  #items {
-    height: 100%;
-    overflow-x: hidden;
-    overflow-y: auto;  
-  }
+}
+
+#lists ul {
+  padding: 0;
+  font-size: 16px;
+}
+
+#lists ul li {
+  padding: 5px 20px;
+  cursor: pointer;
+}
+
+#lists ul li.is-active{
+  background: #efb47a;
+  color: #2d2d2d;
+}
+
+#lists .field {
+  margin: 10px;
 }
 
 .import-item {
@@ -68,9 +77,11 @@
   position: relative;
   font-size: 15px;
   border: 1px solid #dcdcdc;
-  margin: 5px 0px;
-  border-radius: 3px;
+  margin: 2px 0px;
+  border-radius: 4px;
   background: #f7f7f7;
+  color: #444444;
+  overflow: hidden;
 }
 
 .ah-checkbox:hover {
@@ -139,9 +150,9 @@
 }
 
 .show-done-checkbox, .show-done-checkbox:hover {
-  background: #333;
+  background: none;
   border: 0;
-  color: #ffffff;
+  color: #444444;
 }
 
 .show-done-checkbox .ah-checkbox-check, .show-done-checkbox:hover  .ah-checkbox-check {
