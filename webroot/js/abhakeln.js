@@ -47,6 +47,10 @@ class Abhakeln {
         },
         showLists() {
           self.showLists();
+        },
+        toggleMenu() {
+          document.querySelector(".burger-button").classList.toggle("is-active");
+          document.querySelector(".menu").classList.toggle("visible");
         }
       }
     });

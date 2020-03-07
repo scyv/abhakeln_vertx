@@ -7,14 +7,19 @@
 #lists {
   background: #ffffff;
   overflow-x: hidden;
-  overflow-y: auto;  
+  overflow-y: auto;
   flex-grow: 1;
   flex-shrink: 0;
-  padding: 10px 0px;
+  padding: 0px 0px;
+}
+
+#lists .title {
+  padding: 10px;
+  margin-bottom: 0;
 }
 
 #items {
-  background:url("background.jpg");
+  background: url("background.jpg");
   overflow-x: hidden;
   overflow-y: auto;
   flex-grow: 1;
@@ -32,7 +37,6 @@
 }
 
 @media screen and (min-width: 769px), print {
- 
   #lists {
     flex-basis: 330px;
     flex-grow: 0;
@@ -50,7 +54,7 @@
   cursor: pointer;
 }
 
-#lists ul li.is-active{
+#lists ul li.is-active {
   background: #efb47a;
   color: #2d2d2d;
 }
@@ -149,13 +153,15 @@
   border-color: #7b7b7b;
 }
 
-.show-done-checkbox, .show-done-checkbox:hover {
+.show-done-checkbox,
+.show-done-checkbox:hover {
   background: none;
   border: 0;
   color: #444444;
 }
 
-.show-done-checkbox .ah-checkbox-check, .show-done-checkbox:hover  .ah-checkbox-check {
+.show-done-checkbox .ah-checkbox-check,
+.show-done-checkbox:hover .ah-checkbox-check {
   border: 0;
 }
 
@@ -164,9 +170,72 @@
   left: 7px;
 }
 
-.fade-enter-active, .fade-leave-active {
-  transition: opacity .2s;
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.2s;
 }
-.fade-enter, .fade-leave-to {
+.fade-enter,
+.fade-leave-to {
   opacity: 0;
+}
+
+.burger-button {
+  color: #4a4a4a;
+  cursor: pointer;
+  display: block;
+  height: 3.25rem;
+  position: relative;
+  width: 3.25rem;
+  margin-left: auto;
+}
+
+.burger-button span {
+  background-color: currentColor;
+  display: block;
+  height: 1px;
+  left: calc(50% - 8px);
+  position: absolute;
+  transform-origin: center;
+  transition-duration: 86ms;
+  transition-property: background-color, opacity, transform;
+  transition-timing-function: ease-out;
+  width: 16px;
+}
+
+.burger-button span:nth-child(1) {
+  top: calc(50% - 6px);
+}
+
+.burger-button span:nth-child(2) {
+  top: calc(50% - 1px);
+}
+
+.burger-button span:nth-child(3) {
+  top: calc(50% + 4px);
+}
+
+.burger-button:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+.burger-button.is-active span:nth-child(1) {
+  transform: translateY(5px) rotate(45deg);
+}
+
+.burger-button.is-active span:nth-child(2) {
+  opacity: 0;
+}
+
+.burger-button.is-active span:nth-child(3) {
+  transform: translateY(-5px) rotate(-45deg);
+}
+
+.menu {
+  display: none;
+  padding: 20px;
+  margin-bottom: 10px;
+}
+
+.menu.visible {
+  display: block;
 }

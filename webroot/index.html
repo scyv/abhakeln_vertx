@@ -12,15 +12,46 @@
 <body>
 <script src='./js/lib/vue.js'></script>
 <div id="app">
-    <div id="lists" class="menu" v-bind:class="{'is-hidden-mobile': itemsVisible}">
+    <div id="lists" v-bind:class="{'is-hidden-mobile': itemsVisible}">
+        <a role="button" v-on:click="toggleMenu" class="burger-button is-pulled-right" aria-label="menu"
+           aria-expanded="false">
+            <span aria-hidden="true"></span>
+            <span aria-hidden="true"></span>
+            <span aria-hidden="true"></span>
+        </a>
+        <div class="title">
+            Abhakeln
+        </div>
+
+        <aside class="menu">
+            <p class="menu-label">
+                Profil
+            </p>
+            <ul class="menu-list">
+                <li><a>Einstellungen</a></li>
+                <li><a>Logout</a></li>
+            </ul>
+            <p class="menu-label">
+                Import
+            </p>
+            <ul class="menu-list">
+                <li><a class="button is-danger is-small" v-on:click="showWunderlistImport">Import von
+                    Wunderlist
+                </a></li>
+            </ul>
+        </aside>
+
+        <div id="wunderlistImport">
+            <ah-wunderlist-import class="ah-import-modal" v-bind:visible="wunderlistImportVisible"/>
+        </div>
+
         <ul>
             <ah-list v-for="list in lists" v-bind:key="list._id" v-bind:selected="list._id === selectedList._id"
                      v-bind:list="list"/>
         </ul>
         <div class="field">
             <div class="control">
-                <input class="input" name="addList" placeholder="Neue Liste anlegen"
-                       v-on:keyup.enter="addListKey">
+                <input class="input" name="addList" placeholder="Neue Liste anlegen" v-on:keyup.enter="addListKey">
             </div>
         </div>
     </div>
@@ -35,13 +66,13 @@
         </div>
         <div class="field">
             <div class="control">
-                    <input class="input" name="addItem" placeholder="Aufgabe anlegen" v-on:keyup.enter="addItemKey">
-                </div>
+                <input class="input" name="addItem" placeholder="Aufgabe anlegen" v-on:keyup.enter="addItemKey">
             </div>
-            <div>
-                <ah-item class="ah-item" v-for="item in listData.items" v-bind:key="item._id" v-bind:item="item"
-                         v-if="!item.done"/>
-            </div>
+        </div>
+        <div>
+            <ah-item class="ah-item" v-for="item in listData.items" v-bind:key="item._id" v-bind:item="item"
+                     v-if="!item.done"/>
+        </div>
         <label class="show-done-checkbox ah-checkbox ah-checkbox-label">
             Erledigte Einträge zeigen
             <input type="checkbox" id="showDone" v-model="showDone"/>
@@ -51,15 +82,6 @@
             <ah-item class="ah-item" v-for="item in listData.items" v-bind:key="item._id" v-bind:item="item"
                      v-if="showDone && item.done"/>
         </div>
-        <div id="wunderlistImport">
-            <ah-wunderlist-import class="ah-import-modal" v-bind:visible="wunderlistImportVisible"/>
-        </div>
-        <div class="content has-text-centered">
-            <button type="button" class="button is-danger is-small" v-on:click="showWunderlistImport">Import von
-                Wunderlist
-            </button>
-        </div>
-
     </div>
 </div>
 <script src="./js/lib/sockjs.min.js"></script>
