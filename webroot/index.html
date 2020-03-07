@@ -12,7 +12,7 @@
 <body>
 <script src='./js/lib/vue.js'></script>
 <div id="app">
-    <div id="lists" v-bind:class="{'is-hidden-mobile': itemsVisible}">
+    <div id="lists" v-bind:class="{'is-hidden-mobile': itemsVisible || detailsVisible}">
         <a role="button" v-on:click="toggleMenu" class="burger-button is-pulled-right" aria-label="menu"
            aria-expanded="false">
             <span aria-hidden="true"></span>
@@ -55,7 +55,7 @@
             </div>
         </div>
     </div>
-    <div id="items" v-if="selectedList" v-bind:class="{'is-hidden-mobile': listsVisible}">
+    <div id="items" v-if="selectedList" v-bind:class="{'is-hidden-mobile': listsVisible || detailsVisible}">
         <div class="level list-title is-mobile">
             <div class="level-left">
                 <button type="button" class="level-item button is-small is-light is-hidden-tablet"
@@ -83,7 +83,15 @@
                      v-if="showDone && item.done"/>
         </div>
     </div>
-    <div id="details" v-if="selectedItem" v-bind:class="{'is-hidden-mobile': detailsVisible}">
+    <div id="details" v-if="selectedItem" v-bind:class="{'is-hidden-mobile': listsVisible || itemsVisible}">
+        <div class="level list-title is-mobile">
+            <div class="level-left">
+                <button type="button" class="level-item button is-small is-light is-hidden-tablet"
+                        v-on:click="showItems">&laquo; Zurück
+                </button>
+                <div class="level-item">{{selectedItem.task}}</div>
+            </div>
+        </div>
         {{selectedItem}}
     </div>
 </div>

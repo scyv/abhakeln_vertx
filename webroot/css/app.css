@@ -27,8 +27,8 @@
 }
 
 #details {
-  background: #333333;
-  color: #ffffff;
+  background: #fffaec;
+  color: #333333;
   overflow-x: hidden;
   overflow-y: auto;
   flex-grow: 1;

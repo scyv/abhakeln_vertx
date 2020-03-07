@@ -56,6 +56,9 @@ class Abhakeln {
         showLists() {
           self.showLists();
         },
+        showItems() {
+          self.showItems();
+        },
         toggleMenu() {
           document.querySelector(".burger-button").classList.toggle("is-active");
           document.querySelector(".menu").classList.toggle("visible");
