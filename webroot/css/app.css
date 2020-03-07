@@ -26,6 +26,16 @@
   padding: 10px 10px;
 }
 
+#details {
+  background: #333333;
+  color: #ffffff;
+  overflow-x: hidden;
+  overflow-y: auto;
+  flex-grow: 1;
+  flex-shrink: 0;
+  padding: 10px 10px;
+}
+
 .list-title {
   color: #333333;
   font-weight: bold;
@@ -41,6 +51,11 @@
     flex-basis: 330px;
     flex-grow: 0;
     border-right: 1px solid #cccccc;
+  }
+
+  #details {
+    flex-basis: 330px;
+    flex-grow: 0;
   }
 }
 
@@ -113,6 +128,7 @@
   background: #e6e6e6;
   border: 1px solid #dcdcdc;
   border-radius: 5px;
+  cursor: pointer;
 }
 .ah-checkbox:hover input ~ .ah-checkbox-check,
 .ah-checkbox input:focus ~ .ah-checkbox-check {
@@ -234,6 +250,8 @@
   display: none;
   padding: 20px;
   margin-bottom: 10px;
+  border-bottom: #cccccc 1px solid;
+  border-top: #cccccc 1px solid;
 }
 
 .menu.visible {

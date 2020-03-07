@@ -12,11 +12,19 @@ class Abhakeln {
   showItems() {
     this.appState.listsVisible = false;
     this.appState.itemsVisible = true;
+    this.appState.detailsVisible = false;
   }
 
   showLists() {
     this.appState.listsVisible = true;
     this.appState.itemsVisible = false;
+    this.appState.detailsVisible = false;
+  }
+
+  showDetails() {
+    this.appState.listsVisible = false;
+    this.appState.itemsVisible = false;
+    this.appState.detailsVisible = true;
   }
 
   _createApp() {
@@ -64,6 +72,7 @@ class Abhakeln {
         select() {
           self.appState.selectedList = this.list;
           self.api.loadItems(this.list);
+          self.appState.selectedItem = null;
           self.showItems();
         }
       },
@@ -85,14 +94,21 @@ class Abhakeln {
             },
             self.appState.selectedList
           );
+        },
+        showDetails(evt) {
+          self.appState.selectedItem = this.item;
+          self.showDetails();
         }
       },
       template: `
               <transition name="fade">
-              <label class="ah-checkbox ah-checkbox-label">{{ item.task }}
+              <div class="ah-checkbox ah-checkbox-label" v-on:click="showDetails">
+                  <span>{{ item.task }}</span>
+                  <label>
                   <input type="checkbox" checked="checked" v-on:input="select" v-bind:id="item._id" v-model="item.done" />
                   <div class="ah-checkbox-check"></div>
-              </label>
+                  </label>
+              </div>
               </transition>
               `
     });

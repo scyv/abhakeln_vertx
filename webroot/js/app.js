@@ -2,6 +2,7 @@
 const appState = {
   lists: [],
   selectedList: null,
+  selectedItem: null,
   showDone: false,
   listData: {
     items: []
@@ -9,7 +10,8 @@ const appState = {
   masterKey: null,
   wunderlistImportVisible: false,
   listsVisible: true,
-  itemsVisible: false
+  itemsVisible: false,
+  detailsVisible: false
 };
 
 const eventbus = new AbhakelnEventBus(appState, EVENTBUS_ENDPOINT);

@@ -83,6 +83,9 @@
                      v-if="showDone && item.done"/>
         </div>
     </div>
+    <div id="details" v-if="selectedItem" v-bind:class="{'is-hidden-mobile': detailsVisible}">
+        {{selectedItem}}
+    </div>
 </div>
 <script src="./js/lib/sockjs.min.js"></script>
 <script src='./js/lib/vertx-eventbus.js'></script>
