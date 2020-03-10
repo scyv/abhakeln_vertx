@@ -62,6 +62,26 @@ class Abhakeln {
         toggleMenu() {
           document.querySelector(".burger-button").classList.toggle("is-active");
           document.querySelector(".menu").classList.toggle("visible");
+        },
+        markdown(str) {
+          return DOMPurify.sanitize(str ? marked(str) : `<div class="content is-small">Hier Ihre Notizen...</div>`);
+        },
+        startNoteEditMode() {
+          self.appState.noteeditmode = true;
+          window.setTimeout(() => {
+            document.querySelector("#notescontent").focus();
+          }, 400);
+        },
+        saveNotes() {
+          const content = document.querySelector("#notescontent").value;
+          self.api.updateItem(
+            {
+              _id: self.appState.selectedItem._id,
+              notes: content
+            },
+            self.appState.selectedList
+          );
+          self.appState.noteeditmode = false;
         }
       }
     });
@@ -76,6 +96,7 @@ class Abhakeln {
           self.appState.selectedList = this.list;
           self.api.loadItems(this.list);
           self.appState.selectedItem = null;
+          self.appState.clearItems();
           self.showItems();
         }
       },
@@ -87,9 +108,15 @@ class Abhakeln {
     });
 
     Vue.component("ah-item", {
-      props: ["item"],
+      props: ["item", "selected"],
+      data: function() {
+        return {
+          transitionEnabled: "nofade"
+        };
+      },
       methods: {
         select(evt) {
+          this.transitionEnabled = "fade";
           self.api.updateItem(
             {
               _id: this.item._id,
@@ -98,16 +125,19 @@ class Abhakeln {
             self.appState.selectedList
           );
         },
+        nobubble(evt) {
+          evt.stopPropagation();
+        },
         showDetails(evt) {
           self.appState.selectedItem = this.item;
           self.showDetails();
         }
       },
       template: `
-              <transition name="fade">
-              <div class="ah-checkbox ah-checkbox-label" v-on:click="showDetails">
+              <transition name="fade" v-bind:name="transitionEnabled">
+              <div class="ah-checkbox ah-checkbox-label" v-bind:class="{'is-active': selected}" v-on:click="showDetails">
                   <span>{{ item.task }}</span>
-                  <label>
+                  <label v-on:click="nobubble">
                   <input type="checkbox" checked="checked" v-on:input="select" v-bind:id="item._id" v-model="item.done" />
                   <div class="ah-checkbox-check"></div>
                   </label>

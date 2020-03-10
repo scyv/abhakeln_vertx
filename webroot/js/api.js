@@ -9,7 +9,7 @@ class AbhakelnApi {
   async loadLists() {
     const resp = await fetch(this.apiEndpoint + "/lists/");
     const data = await resp.json();
-    this._clearArray(this.appState.lists);
+    this.appState.clearLists();
     data.forEach(list => {
       this.appState.lists.push(this.encryption.decryptListData(list, this.appState.userData.userId, this.appState.masterKey));
     });
@@ -22,7 +22,7 @@ class AbhakelnApi {
   async loadItems(list) {
     const resp = await fetch(this.apiEndpoint + "/lists/" + list._id + "/");
     const data = await resp.json();
-    this._clearArray(this.appState.listData.items);
+    this.appState.clearItems();
     data.items.forEach(item => {
       this.appState.listData.items.push(this.encryption.decryptItemData(item, list, this.appState.userData.userId, this.appState.masterKey));
     });
@@ -56,10 +56,5 @@ class AbhakelnApi {
       },
       body: JSON.stringify(this.encryption.encryptItemData(itemData, list, this.appState.userData.userId, this.appState.masterKey))
     });
-  }
-
-  _clearArray(array) {
-    array.length = 0;
-    array.pop(); // will update DOM, too
   }
 }

@@ -71,7 +71,7 @@
         </div>
         <div>
             <ah-item class="ah-item" v-for="item in listData.items" v-bind:key="item._id" v-bind:item="item"
-                     v-if="!item.done"/>
+                     v-bind:selected="selectedItem && item._id == selectedItem._id" v-if="!item.done"/>
         </div>
         <label class="show-done-checkbox ah-checkbox ah-checkbox-label">
             Erledigte Einträge zeigen
@@ -80,7 +80,7 @@
         </label>
         <div>
             <ah-item class="ah-item" v-for="item in listData.items" v-bind:key="item._id" v-bind:item="item"
-                     v-if="showDone && item.done"/>
+                     v-bind:selected="selectedItem && item._id == selectedItem._id" v-if="showDone && item.done"/>
         </div>
     </div>
     <div id="details" v-if="selectedItem" v-bind:class="{'is-hidden-mobile': listsVisible || itemsVisible}">
@@ -92,13 +92,42 @@
                 <div class="level-item">{{selectedItem.task}}</div>
             </div>
         </div>
-        {{selectedItem}}
+        <!--
+    <div class="card">
+        <div class="card-content">
+            <div class="content">
+                Fällig: 11.03.2020
+            </div>
+        </div>
+    </div>
+    <div class="card">
+        <div class="card-content">
+            <div class="content">
+                Erinnerung: 11.03.2020 - 10:00 Uhr
+            </div>
+        </div>
+    </div>
+-->
+        <div class="card">
+            <div class="card-content">
+                <div class="content" v-on:click="startNoteEditMode" v-if="noteeditmode===false"
+                     v-html="markdown(selectedItem.notes)"></div>
+                <div class="field" v-if="noteeditmode">
+                    <div class="control">
+                            <textarea class="textarea" rows=15 id="notescontent"
+                                      v-on:blur="saveNotes">{{selectedItem.notes}}</textarea>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 <script src="./js/lib/sockjs.min.js"></script>
 <script src='./js/lib/vertx-eventbus.js'></script>
 <script src="./js/lib/sodium.js"></script>
 <script src="./js/lib/dexie.js"></script>
+<script src="./js/lib/purify.min.js"></script>
+<script src="./js/lib/marked.min.js"></script>
 <script src="./config.js"></script>
 <script src="./js/storage.js"></script>
 <script src="./js/encryption.js"></script>

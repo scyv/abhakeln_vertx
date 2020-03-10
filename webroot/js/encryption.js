@@ -61,6 +61,9 @@ class Encryption {
 
   decryptItemData(itemData, listData, userId, masterKey) {
     itemData.task = this.decrypt(itemData.task, this.decryptListKey(listData, userId, masterKey));
+    if (itemData.notes) {
+      itemData.notes = this.decrypt(itemData.notes, this.decryptListKey(listData, userId, masterKey));
+    }
     return itemData;
   }
 

@@ -32,7 +32,12 @@ class AbhakelnEventBus {
         break;
       case "update-item-data":
         const localItem = this.appState.listData.items.find(i => i._id === body._id);
-        localItem.done = body.done;
+        if (localItem){
+          const decrypted = this.encryption.decryptItemData(body, this.appState.selectedList, this.appState.userData.userId, this.appState.masterKey);
+          localItem.done = decrypted.done;
+          localItem.task = decrypted.task;
+          localItem.notes = decrypted.notes;
+        }
         break;
       default:
         console.warn("Unknown action (" + action + "). Dispatching nothing at all.");
