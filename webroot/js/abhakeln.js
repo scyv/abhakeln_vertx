@@ -2,6 +2,18 @@ class Abhakeln {
   constructor(appState, api) {
     this.appState = appState;
     this.api = api;
+
+    window.addEventListener("keyup", (evt) => {
+      if (evt.key === "Escape") {
+        this.closeMenus();
+        this.appState.wunderlistImportVisible = false;
+        this.appState.shareListVisible = false;
+        if (this.appState.detailsVisible) {
+          this.appState.detailsVisible = false;
+          this.appState.selectedItem = null;
+        }
+      }
+    });
   }
 
   init() {
@@ -27,12 +39,25 @@ class Abhakeln {
     this.appState.detailsVisible = true;
   }
 
+  closeMenus() {
+    this.appState.listMenuVisible = false;
+    this.appState.itemMenuVisible = false;
+  }
+
+  startSync() {
+    this.closeMenus();
+    this.api.loadLists();
+  }
+
   _createApp() {
     const self = this;
     new Vue({
       el: "#app",
       data: self.appState,
       methods: {
+        startSync() {
+          self.startSync();
+        },
         addListKey(evt) {
           const listName = evt.target.value;
           evt.target.value = "";
@@ -53,15 +78,20 @@ class Abhakeln {
         showWunderlistImport() {
           self.appState.wunderlistImportVisible = true;
         },
+        showShareList() {
+          self.appState.shareListVisible = true;
+        },
         showLists() {
           self.showLists();
         },
         showItems() {
           self.showItems();
         },
-        toggleMenu() {
-          document.querySelector(".burger-button").classList.toggle("is-active");
-          document.querySelector(".menu").classList.toggle("visible");
+        toggleListMenu() {
+          self.appState.listMenuVisible = !self.appState.listMenuVisible;
+        },
+        toggleItemMenu() {
+          self.appState.itemMenuVisible = !self.appState.itemMenuVisible;
         },
         markdown(str) {
           return DOMPurify.sanitize(str ? marked(str) : `<div class="content is-small">Hier Ihre Notizen...</div>`);
@@ -134,16 +164,136 @@ class Abhakeln {
         }
       },
       template: `
-              <transition name="fade" v-bind:name="transitionEnabled">
-              <div class="ah-checkbox ah-checkbox-label" v-bind:class="{'is-active': selected}" v-on:click="showDetails">
-                  <span>{{ item.task }}</span>
-                  <label v-on:click="nobubble">
-                  <input type="checkbox" checked="checked" v-on:input="select" v-bind:id="item._id" v-model="item.done" />
-                  <div class="ah-checkbox-check"></div>
-                  </label>
+        <transition name="fade" v-bind:name="transitionEnabled">
+        <div class="ah-checkbox ah-checkbox-label" v-bind:class="{'is-active': selected}" v-on:click="showDetails">
+            <span>{{ item.task }}</span>
+            <label v-on:click="nobubble">
+            <input type="checkbox" checked="checked" v-on:input="select" v-bind:id="item._id" v-model="item.done" />
+            <div class="ah-checkbox-check"></div>
+            </label>
+        </div>
+        </transition>
+        `
+    });
+
+    Vue.component("ah-sharelist", {
+      props: ["visible", "list"],
+      methods: {
+        shareList() {
+          self.api.shareList(
+            this.list,
+            document.querySelector("#shareUserName").value,
+            document.querySelector("#shareListName").value,
+            document.querySelector("#shareListPwd").value
+          );
+          this.closeModal();
+          self.closeMenus();
+        },
+        closeModal() {
+          self.appState.shareListVisible = false;
+        }
+      },
+      template: `
+      <div class="modal" v-bind:class="{'is-active': visible}">
+        <div class="modal-background"></div>
+        <div class="modal-card">
+          <header class="modal-card-head">
+            <p class="modal-card-title">Liste Teilen</p>
+            <button class="delete" aria-label="close" v-on:click="closeModal"></button>
+          </header>
+          <section class="modal-card-body">
+            <div class="field">
+              <div class="control">
+                <input type="text" class="input" id="shareListName" placeholder="Listen Name" v-bind:value="list.name" />
               </div>
-              </transition>
-              `
+              <p class="help">Wenn Sie den Namen geheim halten möchten, ändern sie ihn hier.</p>
+            </div>
+            <div class="field">
+              <div class="control">
+                <input type="text" class="input" id="shareUserName" placeholder="Teilen für: Benutzername oder Email" />
+              </div>
+              <p class="help">Dies ist der Name des Empfängers der Liste.</p>
+            </div>
+            <div class="field">
+              <div class="control">
+                <input type="text" class="input" id="shareListPwd" placeholder="Passwort für Liste" />
+              </div>
+              <p class="help">Denken Sie sich etwas aus. Dieses Passwort gilt nur so lange, bis der Empfänger die Liste eingerichtet hat.</p>
+            </div>
+          </section>
+          <footer class="modal-card-foot">
+            <button class="button is-success" v-on:click="shareList">Teilen</button>
+            <button class="button" v-on:click="closeModal">Schließen</button>
+          </footer>
+        </div>
+      </div>      
+      `
+    });
+
+    Vue.component("ah-joinlist-item", {
+      props: ["list"],
+      methods: {
+        showJoinList() {
+          self.appState.joinList = this.list;
+          self.appState.joinListVisible = true;
+        }
+      },
+      template: `<a v-on:click="showJoinList">{{list.name}}</a>`
+    });
+
+    Vue.component("ah-joinlist", {
+      props: ["visible"],
+      data: function() {
+        return {
+          decryptError: null
+        };
+      },
+      methods: {
+        joinList() {
+          (async () => {
+            try {
+              await self.api.confirmShareList(self.appState.joinList, document.querySelector("#joinListKey").value);
+              this.closeModal();
+              self.startSync();
+              self.closeMenus();
+            } catch (err) {
+              this.decryptError = err;
+            }
+          })();
+        },
+        closeModal() {
+          self.appState.joinListVisible = false;
+        },
+        closeError() {
+          this.decryptError = null;
+        }
+      },
+      template: `
+      <div class="modal" v-bind:class="{'is-active': visible}">
+        <div class="modal-background"></div>
+        <div class="modal-card">
+          <header class="modal-card-head">
+            <p class="modal-card-title">Liste Beitreten</p>
+            <button class="delete" aria-label="close" v-on:click="closeModal"></button>
+          </header>
+          <section class="modal-card-body">
+            <div v-if="decryptError" class="notification is-danger">
+                <button class="delete" v-on:click="closeError"></button>
+                {{ decryptError }}
+            </div>
+            <div class="field">
+              <div class="control">
+                <input type="text" class="input" id="joinListKey" placeholder="Hier das Passwort für Liste eingeben" />
+              </div>
+            </div>
+          </section>
+          <footer class="modal-card-foot">
+            <button class="button is-success" v-on:click="joinList">Beitreten</button>
+            <button class="button" v-on:click="closeModal">Schließen</button>
+          </footer>
+        </div>
+      </div>            
+      `
     });
 
     Vue.component("ah-wunderlist-import", {

@@ -9,6 +9,8 @@ import io.vertx.reactivex.ext.web.RoutingContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.time.ZonedDateTime;
+
 public class Api {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Api.class);
@@ -41,7 +43,11 @@ public class Api {
             set.put("task", json.getString("task"));
         }
         if (json.containsKey("done")) {
-            set.put("done", json.getBoolean("done"));
+            boolean isDone = json.getBoolean("done");
+            set.put("done", isDone);
+            if (isDone) {
+                set.put("completedAt", ZonedDateTime.now().toString());
+            }
         }
         if (json.containsKey("notes")) {
             set.put("notes", json.getString("notes"));
@@ -122,7 +128,7 @@ public class Api {
         newItem.put("listId", listId);
         newItem.put("done", json.getBoolean("done", false));
         newItem.put("notes", json.getString("notes", ""));
-        newItem.put("createdAt", json.getString("createdAt", ""));
+        newItem.put("createdAt", json.getString("createdAt", ZonedDateTime.now().toString()));
         newItem.put("completedAt", json.getString("completedAt", ""));
         newItem.put("dueDate", json.getString("dueDate", ""));
         newItem.put("reminder", json.getString("reminder", ""));
@@ -138,6 +144,35 @@ public class Api {
                     routingContext.response()
                             .setStatusCode(500).end(error.getMessage());
                 });
+    }
+
+    public void shareList(RoutingContext routingContext) {
+        String listId = routingContext.pathParam("listId");
+        DeliveryOptions options = new DeliveryOptions().addHeader("action", "share-list");
+        JsonObject shareList = new JsonObject();
+        JsonObject json = routingContext.getBodyAsJson();
+        shareList.put("userId", getUserId(routingContext));
+        shareList.put("userName", json.getString("userName"));
+        shareList.put("listName", json.getString("listName"));
+        shareList.put("sharedBy", routingContext.user().principal().getString("username"));
+        shareList.put("encryptedKey", json.getString("encryptedKey"));
+        shareList.put("listId", listId);
+
+        vertx.eventBus().send("db-queue", shareList, options);
+        routingContext.response().end();
+    }
+
+    public void confirmShareList(RoutingContext routingContext) {
+        String listId = routingContext.pathParam("listId");
+        DeliveryOptions options = new DeliveryOptions().addHeader("action", "confirm-share-list");
+        JsonObject shareList = new JsonObject();
+        JsonObject json = routingContext.getBodyAsJson();
+        shareList.put("userId", getUserId(routingContext));
+        shareList.put("listId", listId);
+        shareList.put("listKey", json.getString("listKey"));
+
+        vertx.eventBus().send("db-queue", shareList, options);
+        routingContext.response().end();
     }
 
     private String getUserId(RoutingContext ctx) {

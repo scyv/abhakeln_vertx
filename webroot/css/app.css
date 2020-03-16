@@ -5,12 +5,19 @@
 }
 
 #lists {
+  color: #333333;
   background: #ffffff;
   overflow-x: hidden;
-  overflow-y: auto;
+  overflow-y: hidden;
   flex-grow: 1;
   flex-shrink: 0;
   padding: 0px 0px;
+  display: flex;
+  flex-direction: column;
+}
+
+#lists ul {
+  overflow-y: auto;
 }
 
 #lists .title {
@@ -27,7 +34,7 @@
 }
 
 #details {
-  background: #fffaec;
+  background: #ffffff;
   color: #333333;
   overflow-x: hidden;
   overflow-y: auto;
@@ -59,7 +66,7 @@
   }
 
   #details {
-    flex-basis: 330px;
+    flex-basis: 40%;
     flex-shrink: 0;
     flex-grow: 0;
   }
@@ -71,13 +78,13 @@
 }
 
 #lists ul li {
-  padding: 5px 20px;
+  padding: 8px 20px;
   cursor: pointer;
 }
 
 #lists ul li.is-active {
-  background: rgb(239, 180, 122);
-  color: #2d2d2d;
+  background: #f14668;
+  color: #ffffff;
 }
 
 #lists .field {
@@ -93,7 +100,7 @@
 }
 
 .import-item.import-success {
-  background: #a7ffa7;
+  background: #6fa86f;
 }
 
 .ah-checkbox {
@@ -175,7 +182,7 @@
 
 .show-done-checkbox,
 .show-done-checkbox:hover {
-  background: none;
+  background-color: rgba(255, 255, 255, 0.4);
   border: 0;
   color: #444444;
 }
@@ -210,7 +217,7 @@
 }
 
 .burger-button span {
-  background-color: currentColor;
+  background-color: #000000;
   display: block;
   height: 1px;
   left: calc(50% - 8px);
@@ -220,6 +227,11 @@
   transition-property: background-color, opacity, transform;
   transition-timing-function: ease-out;
   width: 16px;
+}
+
+#items .burger-button {
+  height: 1.75rem;
+  width: 1.75rem;
 }
 
 .burger-button span:nth-child(1) {
@@ -251,15 +263,33 @@
 }
 
 .menu {
-  display: none;
-  padding: 20px;
+  flex-shrink: 0;
+  display: block;
+  height: 0;
+  padding: 0;
+  border: 0;
+  opacity: 0;
   margin-bottom: 10px;
-  border-bottom: #cccccc 1px solid;
-  border-top: #cccccc 1px solid;
+  transition-duration: 100ms;
+  transition-property: height, padding, opacity;
+  transition-timing-function: ease-out;
+  overflow: hidden;
+  overflow-y: auto;
 }
 
 .menu.visible {
+  border-bottom: #cccccc 1px solid;
+  border-top: #cccccc 1px solid;
   display: block;
+  height: 300px;
+  padding: 20px;
+  opacity: 1;
+}
+
+#items .menu.visible {
+  height: 120px;
+  background: #ffffff;
+  border: 0;
 }
 
 .level,
@@ -270,7 +300,26 @@
   word-break: break-all;
 }
 
+#details .card {
+  background: #fff9b5;
+}
+
 #details .card-content .content {
   overflow-wrap: break-word;
   word-break: break-all;
+}
+
+.blinking {
+  animation: blinkingText 1.2s infinite;
+}
+@keyframes blinkingText {
+  0% {
+    background-color: #ffffff;
+  }
+  49% {
+    background-color: #ffaaaa;
+  }
+  100% {
+    background-color: #ffffff;
+  }
 }

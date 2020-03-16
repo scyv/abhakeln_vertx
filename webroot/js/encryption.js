@@ -55,7 +55,14 @@ class Encryption {
   }
 
   decryptListData(listData, userId, masterKey) {
-    listData.name = this.decrypt(listData.name, this.decryptListKey(listData, userId, masterKey));
+    const listKey = this.decryptListKey(listData, userId, masterKey);
+    if (listKey) {
+      listData.name = this.decrypt(listData.name, listKey);
+    } else {
+      listData.nokey = true;
+      const ownerData = this.findOwnerInfo(listData, userId);
+      listData.name = ownerData.listName + " von " + ownerData.sharedBy;
+    }
     return listData;
   }
 
@@ -68,7 +75,14 @@ class Encryption {
   }
 
   decryptListKey(listData, userId, masterKey) {
-    const listKey = listData.owners.filter(o => o.userId === userId)[0].key;
+    const listKey = this.findOwnerInfo(listData, userId).key;
+    if (!listKey) {
+      return undefined;
+    }
     return this.decrypt(listKey, masterKey);
+  }
+
+  findOwnerInfo(list, userId) {
+    return list.owners.filter(o => o.userId === userId)[0];
   }
 }

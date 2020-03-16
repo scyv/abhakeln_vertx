@@ -13,34 +13,39 @@
 <script src='./js/lib/vue.js'></script>
 <div id="app">
     <div id="lists" v-bind:class="{'is-hidden-mobile': itemsVisible || detailsVisible}">
-        <a role="button" v-on:click="toggleMenu" class="burger-button is-pulled-right" aria-label="menu"
-           aria-expanded="false">
-            <span aria-hidden="true"></span>
-            <span aria-hidden="true"></span>
-            <span aria-hidden="true"></span>
-        </a>
-        <div class="title">
-            Abhakeln
+        <div style="flex-shrink: 0;">
+            <a role="button" v-on:click="toggleListMenu" class="burger-button is-pulled-right" aria-label="menu"
+               aria-expanded="false"
+               v-bind:class="{blinking: menuAlert || hasOpenInvitations, 'is-active':listMenuVisible}"
+            >
+                <span aria-hidden="true"></span>
+                <span aria-hidden="true"></span>
+                <span aria-hidden="true"></span>
+            </a>
+            <div class="title">
+                Abhakeln
+            </div>
         </div>
-
-        <aside class="menu">
-            <p class="menu-label">
-                Profil
-            </p>
+        <aside class="menu" v-bind:class="{'visible':listMenuVisible}">
             <ul class="menu-list">
+                <li><a v-on:click="startSync">Synchronisieren</a></li>
                 <li><a>Einstellungen</a></li>
-                <li><a>Logout</a></li>
+                <li>
+                    <a class="button is-danger is-small" v-on:click="showWunderlistImport">
+                        Import von Wunderlist
+                    </a>
+                </li>
             </ul>
-            <p class="menu-label">
-                Import
+            <p class="menu-label" v-if="hasOpenInvitations">
+                Listen Beitreten
             </p>
-            <ul class="menu-list">
-                <li><a class="button is-danger is-small" v-on:click="showWunderlistImport">Import von
-                    Wunderlist
-                </a></li>
+            <ul class="menu-list" v-if="hasOpenInvitations">
+                <li v-for="list in invitationLists">
+                    <ah-joinlist-item v-bind:list="list"/>
+                </li>
             </ul>
+            <ah-joinlist v-bind:visible="joinListVisible"/>
         </aside>
-
         <div id="wunderlistImport">
             <ah-wunderlist-import class="ah-import-modal" v-bind:visible="wunderlistImportVisible"/>
         </div>
@@ -63,7 +68,22 @@
                 </button>
                 <div class="level-item">{{selectedList.name}}</div>
             </div>
+            <div class="level-right">
+                <a role="button" v-on:click="toggleItemMenu" class="burger-button" aria-label="menu"
+                   aria-expanded="false" v-bind:class="{'is-active':itemMenuVisible}">
+                    <span aria-hidden="true"></span>
+                    <span aria-hidden="true"></span>
+                    <span aria-hidden="true"></span>
+                </a>
+            </div>
         </div>
+        <aside class="menu" v-bind:class="{'visible':itemMenuVisible}">
+            <ul class="menu-list">
+                <li><a v-on:click="showShareList">Freigeben</a></li>
+                <li><a>Löschen</a></li>
+            </ul>
+            <ah-sharelist v-bind:visible="shareListVisible" v-bind:list="selectedList"/>
+        </aside>
         <div class="field">
             <div class="control">
                 <input class="input" name="addItem" placeholder="Aufgabe anlegen" v-on:keyup.enter="addItemKey">
@@ -92,22 +112,6 @@
                 <div class="level-item">{{selectedItem.task}}</div>
             </div>
         </div>
-        <!--
-    <div class="card">
-        <div class="card-content">
-            <div class="content">
-                Fällig: 11.03.2020
-            </div>
-        </div>
-    </div>
-    <div class="card">
-        <div class="card-content">
-            <div class="content">
-                Erinnerung: 11.03.2020 - 10:00 Uhr
-            </div>
-        </div>
-    </div>
--->
         <div class="card">
             <div class="card-content">
                 <div class="content" v-on:click="startNoteEditMode" v-if="noteeditmode===false"
@@ -119,6 +123,8 @@
                     </div>
                 </div>
             </div>
+            <footer class="card-footer">
+                <a href="#" class="card-footer-item">Löschen</a></footer>
         </div>
     </div>
 </div>

@@ -52,6 +52,15 @@ public class DbVerticle extends AbstractVerticle {
                 break;
             case "update-item-data": {
                 this.updateListItem(msg);
+                break;
+            }
+            case "confirm-share-list": {
+                this.confirmShareList(msg);
+                break;
+            }
+            case "share-list": {
+                this.shareList(msg);
+                break;
             }
         }
     }
@@ -143,6 +152,54 @@ public class DbVerticle extends AbstractVerticle {
                     return owners;
                 }
         );
+    }
+
+    private void shareList(Message<JsonObject> msg) {
+        JsonObject shareList = msg.body();
+        String userId = shareList.getString("userId");
+        String listId = shareList.getString("listId");
+        String userName = shareList.getString("userName");
+        String sharedBy = shareList.getString("sharedBy");
+        String listName = shareList.getString("listName");
+        String encryptedKey = shareList.getString("encryptedKey");
+        AtomicReference<String> targetUserId = new AtomicReference<>();
+        userHasListAccess(userId, listId)
+                .flatMap(hasAccess -> mongoClient.rxFindOne("user", new JsonObject().put("username", userName), new JsonObject().put("_id", 1)))
+                .flatMap(user -> {
+                    targetUserId.set(user.getString("_id"));
+                    return mongoClient.rxUpdateCollection("lists",
+                            new JsonObject().put("_id", listId),
+                            new JsonObject().put("$push",
+                                    new JsonObject().put("owners", new JsonObject()
+                                            .put("userId", targetUserId.get())
+                                            .put("sharedBy", sharedBy)
+                                            .put("listName", listName)
+                                            .put("encryptedKey", encryptedKey)
+                                    )));
+                })
+                .subscribe(r -> {
+                    DeliveryOptions options = new DeliveryOptions()
+                            .addHeader("action", "share-list")
+                            .addHeader("for-users", String.valueOf(new JsonArray().add(new JsonObject().put("userId", targetUserId.get()))));
+                    vertx.eventBus().publish("sync-queue", new JsonObject().put("listId", listId), options);
+                });
+
+    }
+
+    private void confirmShareList(Message<JsonObject> msg) {
+        JsonObject shareList = msg.body();
+        String userId = shareList.getString("userId");
+        String listId = shareList.getString("listId");
+        String listKey = shareList.getString("listKey");
+        userHasListAccess(userId, listId)
+                .flatMap(hasAccess -> mongoClient.rxUpdateCollection("lists",
+                        new JsonObject().put("_id", listId).put("owners.userId", userId),
+                        new JsonObject().put("$set", new JsonObject()
+                                .put("owners.$.key", listKey)
+                                .putNull("owners.$.listName")
+                                .putNull("owners.$.encryptedKey")
+                        )))
+                .subscribe();
     }
 
     @Override

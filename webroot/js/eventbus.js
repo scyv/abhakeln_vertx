@@ -24,20 +24,24 @@ class AbhakelnEventBus {
     switch (action) {
       case "create-list":
         this.appState.lists.push(this.encryption.decryptListData(body, this.appState.userData.userId, this.appState.masterKey));
+        this.appState.lists = this.appState.lists.sort((a, b) => (a.name.toLowerCase() > b.name.toLowerCase() ? 1 : -1));
         break;
       case "create-list-item":
         if (body.listId === this.appState.selectedList._id) {
-          this.appState.listData.items.push(this.encryption.decryptItemData(body, this.appState.selectedList, this.appState.userData.userId, this.appState.masterKey));
+          this.appState.listData.items.splice(0, 0, this.encryption.decryptItemData(body, this.appState.selectedList, this.appState.userData.userId, this.appState.masterKey));
         }
         break;
       case "update-item-data":
         const localItem = this.appState.listData.items.find(i => i._id === body._id);
-        if (localItem){
+        if (localItem) {
           const decrypted = this.encryption.decryptItemData(body, this.appState.selectedList, this.appState.userData.userId, this.appState.masterKey);
           localItem.done = decrypted.done;
           localItem.task = decrypted.task;
           localItem.notes = decrypted.notes;
         }
+        break;
+      case "share-list":
+        this.appState.menuAlert = true;
         break;
       default:
         console.warn("Unknown action (" + action + "). Dispatching nothing at all.");

@@ -3,16 +3,24 @@ const appState = {
   lists: [],
   selectedList: null,
   selectedItem: null,
+  joinList: null,
   showDone: false,
   listData: {
     items: []
   },
+  hasOpenInvitations: true,
+  invitationLists: [],
   masterKey: null,
   wunderlistImportVisible: false,
+  shareListVisible: false,
   listsVisible: true,
   itemsVisible: false,
   detailsVisible: false,
+  joinListVisible: false,
   noteeditmode: false,
+  menuAlert: false,
+  listMenuVisible: false,
+  itemMenuVisible: false,
   clearItems() {
     this.listData.items.length = 0;
     this.listData.items.pop();

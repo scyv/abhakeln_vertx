@@ -46,6 +46,8 @@ public class WebVerticle extends AbstractVerticle {
         router.get("/api/lists/:id/").produces("application/json").handler(api::getListData);
         router.post("/api/lists/:id/").produces("application/json").handler(api::createListItem);
         router.put("/api/items/:id/").produces("application/json").handler(api::updateListItem);
+        router.post("/api/share/:listId/").produces("application/json").handler(api::shareList);
+        router.put("/api/share/:listId/").produces("application/json").handler(api::confirmShareList);
 
         router.route("/eventbus/*").handler(authHandler).handler(eventBusHandler(auth));
         router.route().handler(staticHandler());
