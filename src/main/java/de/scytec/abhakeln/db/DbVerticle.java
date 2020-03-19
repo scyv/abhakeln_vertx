@@ -7,6 +7,7 @@ import io.vertx.core.eventbus.DeliveryOptions;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.reactivex.core.AbstractVerticle;
+import io.vertx.reactivex.core.MultiMap;
 import io.vertx.reactivex.core.eventbus.Message;
 import io.vertx.reactivex.ext.mongo.MongoClient;
 import org.slf4j.Logger;
@@ -50,6 +51,9 @@ public class DbVerticle extends AbstractVerticle {
             case "create-list-item":
                 this.createListItem(msg);
                 break;
+            case "update-list-itemorder":
+                this.updateListItemOrder(msg);
+                break;
             case "update-item-data": {
                 this.updateListItem(msg);
                 break;
@@ -67,17 +71,27 @@ public class DbVerticle extends AbstractVerticle {
 
     private void updateListItem(Message<JsonObject> msg) {
         JsonObject body = msg.body();
+        MultiMap headers = msg.headers();
         String itemId = body.getString("itemId");
         String userId = body.getString("userId");
         body.remove("itemId");
         body.remove("userId");
 
         final AtomicReference<JsonArray> listOwners = new AtomicReference<>();
+        final AtomicReference<String> listId = new AtomicReference<>();
         mongoClient.rxFindOne("items", new JsonObject().put("_id", itemId), null)
                 .map(item -> item.getString("listId"))
-                .flatMap(listId -> userHasListAccess(userId, listId))
+                .flatMap(id -> Single.just(listId.updateAndGet(i -> id)).toMaybe())
+                .flatMap(id -> userHasListAccess(userId, id))
                 .flatMap(hasAccess -> {
                     listOwners.set(hasAccess);
+
+                    if (headers.contains("sub-action") && headers.get("sub-action").equals("update-sortorder")) {
+                        mongoClient.rxUpdateCollection("items", new JsonObject().put("sortOrder",
+                                new JsonObject().put("$gte", body.getInteger("sortOrder"))),
+                                new JsonObject().put("$inc", new JsonObject().put("sortOrder", 1)));
+                    }
+
                     return mongoClient.rxUpdateCollection("items", new JsonObject().put("_id", itemId), body);
                 })
                 .flatMap(updateResult -> mongoClient.rxFindOne("items", new JsonObject().put("_id", itemId), null))
@@ -152,6 +166,23 @@ public class DbVerticle extends AbstractVerticle {
                     return owners;
                 }
         );
+    }
+
+    private void updateListItemOrder(Message<JsonObject> msg) {
+        JsonObject sortUpdate = msg.body();
+        String userId = sortUpdate.getString("userId");
+        String listId = sortUpdate.getString("listId");
+        userHasListAccess(userId, listId).subscribe(hasAccess -> {
+            sortUpdate.getJsonArray("sorting").forEach(sortInfo -> {
+                mongoClient.rxUpdateCollection("items",
+                        new JsonObject().put("_id", ((JsonObject) sortInfo).getString("_id")),
+                        new JsonObject().put("$set",
+                                new JsonObject().put("sortOrder", ((JsonObject) sortInfo).getInteger("sortOrder")))
+                ).subscribe();
+            });
+
+        });
+
     }
 
     private void shareList(Message<JsonObject> msg) {

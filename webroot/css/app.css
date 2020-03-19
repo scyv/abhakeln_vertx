@@ -1,3 +1,19 @@
+[draggable], #lists *, #items * {
+  -moz-user-select: none;
+  -khtml-user-select: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
+[draggable] {
+  /* Required to make elements draggable in old WebKit */
+  -khtml-user-drag: element;
+  -webkit-user-drag: element;
+}
+
+[v-cloak] {
+  display: none;
+}
+
 #app {
   height: 100vh;
   overflow: hidden;
@@ -28,9 +44,16 @@
 #items {
   background: url("background.jpg");
   overflow-x: hidden;
-  overflow-y: auto;
+  overflow-y: hidden;
   flex-grow: 1;
   padding: 10px 10px;
+  display: flex;
+  flex-direction: column;
+}
+
+#items .items-content {
+  margin-top: 5px;
+  overflow-y: auto;
 }
 
 #details {

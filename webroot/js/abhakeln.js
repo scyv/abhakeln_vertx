@@ -2,8 +2,7 @@ class Abhakeln {
   constructor(appState, api) {
     this.appState = appState;
     this.api = api;
-
-    window.addEventListener("keyup", (evt) => {
+    window.addEventListener("keyup", evt => {
       if (evt.key === "Escape") {
         this.closeMenus();
         this.appState.wunderlistImportVisible = false;
@@ -66,6 +65,7 @@ class Abhakeln {
           });
         },
         addItemKey(evt) {
+          document.querySelector(".items-content").scrollTop = 0;
           const task = evt.target.value;
           evt.target.value = "";
           self.api.createItem(
@@ -112,6 +112,9 @@ class Abhakeln {
             self.appState.selectedList
           );
           self.appState.noteeditmode = false;
+        },
+        itemDragEnd(dnd) {
+          console.log(dnd.selected);
         }
       }
     });
@@ -343,6 +346,7 @@ class Abhakeln {
 
               if (idx >= 0) {
                 self.appState.selectedList = self.appState.lists[idx];
+                let sortOrder = 0;
                 data[0].tasks.forEach(task => {
                   try {
                     self.api.createItem(
@@ -354,7 +358,8 @@ class Abhakeln {
                         completedAt: task.completedAt,
                         dueDate: task.dueDate,
                         reminder: task.reminders.length > 0 ? task.reminders[0].remindAt : null,
-                        importId: task.id
+                        importId: task.id,
+                        sortOrder: sortOrder++
                       },
                       self.appState.selectedList
                     );
@@ -407,5 +412,53 @@ class Abhakeln {
       </div>      
       `
     });
+  }
+}
+
+class DragAndDropSupport {
+  constructor() {
+    this.selected = null;
+  }
+
+  dragOver(e) {
+    if (this.selected.parentNode !== e.target.parentNode) {
+      return;
+    }
+    if (this.isBefore(this.selected, e.target)) {
+      e.target.parentNode.insertBefore(this.selected, e.target);
+    } else {
+      e.target.parentNode.insertBefore(this.selected, e.target.nextSibling);
+    }
+  }
+
+  dragEnd() {
+    var nodes = Array.prototype.slice.call(this.selected.parentNode.children);
+    if (this.selected.classList.contains("ah-item")) {
+      const sorting = nodes.map((node, idx) => {
+        return {
+          _id: node.dataset.itemid,
+          sortOrder: idx
+        }
+      });
+      api.sendItemSortOrder(sorting);
+    }
+    this.selected = null;
+  }
+
+  dragStart(e) {
+    e.dataTransfer.effectAllowed = "move";
+    e.dataTransfer.setData("text/plain", e.target.textContent);
+    this.selected = e.target;
+  }
+
+  isBefore(el1, el2) {
+    if (el2.parentNode === el1.parentNode) {
+      for (let cur = el1.previousSibling; cur; cur = cur.previousSibling) {
+        if (cur === el2) {
+          return true;
+        }
+      }
+    }
+    return false;
   }
 }

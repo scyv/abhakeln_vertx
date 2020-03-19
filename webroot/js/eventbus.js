@@ -38,6 +38,7 @@ class AbhakelnEventBus {
           localItem.done = decrypted.done;
           localItem.task = decrypted.task;
           localItem.notes = decrypted.notes;
+          localItem.sortOrder = decrypted.sortOrder;
         }
         break;
       case "share-list":

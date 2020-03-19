@@ -42,7 +42,7 @@ class AbhakelnApi {
     data.items.forEach(item => {
       items.push(this.encryption.decryptItemData(item, list, this.appState.userData.userId, this.appState.masterKey));
     });
-    items.sort((a, b) => (a.createdAt < b.createdAt ? 1 : -1));
+    items.sort((a, b) => (a.sortOrder > b.sortOrder ? 1 : a.sortOrder === b.sortOrder ? 0 : -1));
     this.appState.listData.items = items;
   }
 
@@ -73,6 +73,18 @@ class AbhakelnApi {
         "Content-Type": "application/json"
       },
       body: JSON.stringify(this.encryption.encryptItemData(itemData, list, this.appState.userData.userId, this.appState.masterKey))
+    });
+  }
+
+  sendItemSortOrder(sorting) {
+    return fetch(this.apiEndpoint + "lists/" + this.appState.selectedList._id + "/", {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        sorting: sorting
+      })
     });
   }
 

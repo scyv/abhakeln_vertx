@@ -146,6 +146,20 @@ public class Api {
                 });
     }
 
+    public void updateList(RoutingContext routingContext) {
+        String listId = routingContext.pathParam("id");
+        DeliveryOptions options = new DeliveryOptions().addHeader("action", "update-list-itemorder");
+        JsonObject updateList = new JsonObject();
+        updateList.put("userId", getUserId(routingContext));
+        updateList.put("listId", listId);
+        JsonObject json = routingContext.getBodyAsJson();
+        if (json.containsKey("sorting")) {
+            updateList.put("sorting", json.getJsonArray("sorting"));
+            vertx.eventBus().send("db-queue", updateList, options);
+        }
+        routingContext.response().end();
+    }
+
     public void shareList(RoutingContext routingContext) {
         String listId = routingContext.pathParam("listId");
         DeliveryOptions options = new DeliveryOptions().addHeader("action", "share-list");

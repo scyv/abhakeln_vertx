@@ -34,6 +34,7 @@ const appState = {
 const eventbus = new AbhakelnEventBus(appState, EVENTBUS_ENDPOINT);
 const api = new AbhakelnApi(appState, API_ENDPOINT);
 const app = new Abhakeln(appState, api);
+const dnd = new DragAndDropSupport();
 
 (async () => {
   const storage = new Storage();

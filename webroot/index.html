@@ -12,12 +12,11 @@
 <body>
 <script src='./js/lib/vue.js'></script>
 <div id="app">
-    <div id="lists" v-bind:class="{'is-hidden-mobile': itemsVisible || detailsVisible}">
+    <div id="lists" v-cloak v-bind:class="{'is-hidden-mobile': itemsVisible || detailsVisible}">
         <div style="flex-shrink: 0;">
             <a role="button" v-on:click="toggleListMenu" class="burger-button is-pulled-right" aria-label="menu"
                aria-expanded="false"
-               v-bind:class="{blinking: menuAlert || hasOpenInvitations, 'is-active':listMenuVisible}"
-            >
+               v-bind:class="{blinking: menuAlert || hasOpenInvitations, 'is-active':listMenuVisible}">
                 <span aria-hidden="true"></span>
                 <span aria-hidden="true"></span>
                 <span aria-hidden="true"></span>
@@ -60,50 +59,57 @@
             </div>
         </div>
     </div>
-    <div id="items" v-if="selectedList" v-bind:class="{'is-hidden-mobile': listsVisible || detailsVisible}">
-        <div class="level list-title is-mobile">
-            <div class="level-left">
-                <button type="button" class="level-item button is-small is-light is-hidden-tablet"
-                        v-on:click="showLists">&laquo; Zurück
-                </button>
-                <div class="level-item">{{selectedList.name}}</div>
+    <div id="items" v-cloak v-if="selectedList" v-bind:class="{'is-hidden-mobile': listsVisible || detailsVisible}">
+        <div class="items-head">
+            <div class="level list-title is-mobile">
+                <div class="level-left">
+                    <button type="button" class="level-item button is-small is-light is-hidden-tablet"
+                            v-on:click="showLists">&laquo; Zurück
+                    </button>
+                    <div class="level-item">{{selectedList.name}}</div>
+                </div>
+                <div class="level-right">
+                    <a role="button" v-on:click="toggleItemMenu" class="burger-button" aria-label="menu"
+                       aria-expanded="false" v-bind:class="{'is-active':itemMenuVisible}">
+                        <span aria-hidden="true"></span>
+                        <span aria-hidden="true"></span>
+                        <span aria-hidden="true"></span>
+                    </a>
+                </div>
             </div>
-            <div class="level-right">
-                <a role="button" v-on:click="toggleItemMenu" class="burger-button" aria-label="menu"
-                   aria-expanded="false" v-bind:class="{'is-active':itemMenuVisible}">
-                    <span aria-hidden="true"></span>
-                    <span aria-hidden="true"></span>
-                    <span aria-hidden="true"></span>
-                </a>
+            <aside class="menu" v-bind:class="{'visible':itemMenuVisible}">
+                <ul class="menu-list">
+                    <li><a v-on:click="showShareList">Freigeben</a></li>
+                    <li><a>Löschen</a></li>
+                </ul>
+                <ah-sharelist v-bind:visible="shareListVisible" v-bind:list="selectedList"/>
+            </aside>
+            <div class="field">
+                <div class="control">
+                    <input class="input" name="addItem" placeholder="Aufgabe anlegen" v-on:keyup.enter="addItemKey">
+                </div>
             </div>
         </div>
-        <aside class="menu" v-bind:class="{'visible':itemMenuVisible}">
-            <ul class="menu-list">
-                <li><a v-on:click="showShareList">Freigeben</a></li>
-                <li><a>Löschen</a></li>
-            </ul>
-            <ah-sharelist v-bind:visible="shareListVisible" v-bind:list="selectedList"/>
-        </aside>
-        <div class="field">
-            <div class="control">
-                <input class="input" name="addItem" placeholder="Aufgabe anlegen" v-on:keyup.enter="addItemKey">
+        <div class="items-content">
+            <div>
+                <ah-item class="ah-item" v-bind:data-itemid="item._id" draggable="true"
+                         ondragstart="dnd.dragStart(event)"
+                         ondragover="dnd.dragOver(event)" ondragend="dnd.dragEnd()" v-for="item in listData.items"
+                         v-bind:key="item._id" v-bind:item="item"
+                         v-bind:selected="selectedItem && item._id == selectedItem._id" v-if="!item.done"/>
             </div>
-        </div>
-        <div>
-            <ah-item class="ah-item" v-for="item in listData.items" v-bind:key="item._id" v-bind:item="item"
-                     v-bind:selected="selectedItem && item._id == selectedItem._id" v-if="!item.done"/>
-        </div>
-        <label class="show-done-checkbox ah-checkbox ah-checkbox-label">
-            Erledigte Einträge zeigen
-            <input type="checkbox" id="showDone" v-model="showDone"/>
-            <div class="ah-checkbox-check"></div>
-        </label>
-        <div>
-            <ah-item class="ah-item" v-for="item in listData.items" v-bind:key="item._id" v-bind:item="item"
-                     v-bind:selected="selectedItem && item._id == selectedItem._id" v-if="showDone && item.done"/>
+            <label class="show-done-checkbox ah-checkbox ah-checkbox-label">
+                Erledigte Einträge zeigen
+                <input type="checkbox" id="showDone" v-model="showDone"/>
+                <div class="ah-checkbox-check"></div>
+            </label>
+            <div>
+                <ah-item class="ah-item" v-for="item in listData.items" v-bind:key="item._id" v-bind:item="item"
+                         v-bind:selected="selectedItem && item._id == selectedItem._id" v-if="showDone && item.done"/>
+            </div>
         </div>
     </div>
-    <div id="details" v-if="selectedItem" v-bind:class="{'is-hidden-mobile': listsVisible || itemsVisible}">
+    <div id="details" v-cloak v-if="selectedItem" v-bind:class="{'is-hidden-mobile': listsVisible || itemsVisible}">
         <div class="level list-title is-mobile">
             <div class="level-left">
                 <button type="button" class="level-item button is-small is-light is-hidden-tablet"
