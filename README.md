@@ -1,4 +1,4 @@
-# abhakeln-vertx-vue
+# abhakeln
 
 This is a todo app using https://vertx.io and https://vuejs.org/
 
@@ -20,13 +20,13 @@ This is a todo app using https://vertx.io and https://vuejs.org/
 
 * ~~Add authentication/authorization~~
 * ~~Add client side encryption of contents~~
-* Add Wunderlist import
+* ~~Add Wunderlist import~~
+* Add list sharing, assignment of tasks
 * Add Service Worker (offline mode)
   * Architecture has to be changed to load "all" items (currently only the items of the currently selected list are loaded)
   * Make application "offline first" 
 * Add more interaction possibilities for items (comments, attachments)
 * Add notifications for items (calendar!)
-* Add list sharing, assignment of tasks
 * Add possibility for recurrent tasks
 * Add virtual lists (today, this week, my-tasks)
 * Add smart lists (make suggestions based on historic behavior (If you buy Milk every 5 days, maybe you will also need milk in 5 days?))
