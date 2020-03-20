@@ -38,17 +38,26 @@ class AbhakelnApi {
     const resp = await fetch(this.apiEndpoint + "/lists/" + list._id + "/");
     const data = await resp.json();
     this.appState.clearItems();
-    const items = [];
+    const doneItems = [];
+    const openItems = [];
     data.items.forEach(item => {
-      items.push(this.encryption.decryptItemData(item, list, this.appState.userData.userId, this.appState.masterKey));
-    });
-    items.sort((a, b) => {
-      if (a.sortOrder && b.sortOrder) {
-        return (a.sortOrder > b.sortOrder ? 1 : a.sortOrder === b.sortOrder ? 0 : -1)
+      const decrypted = this.encryption.decryptItemData(item, list, this.appState.userData.userId, this.appState.masterKey);
+      if (item.done) {
+        doneItems.push(decrypted);
+      } else {
+        openItems.push(decrypted);
       }
-      return (a.createdAt < b.createdAt ? 1 : a.createdAt === b.createdAt ? 0 : -1)
     });
-    this.appState.listData.items = items;
+    openItems.sort((a, b) => {
+        if (a.sortOrder && b.sortOrder) {
+          return (a.sortOrder > b.sortOrder ? 1 : a.sortOrder === b.sortOrder ? 0 : -1)
+        }
+        return (a.createdAt < b.createdAt ? 1 : a.createdAt === b.createdAt ? 0 : -1)
+    });
+    doneItems.sort((a, b) => {
+      return (a.completedAt < b.completedAt ? 1 : a.completedAt === b.completedAt ? 0 : -1)
+    });
+    this.appState.listData.items = openItems.concat(doneItems);
   }
 
   createList(listData) {
