@@ -42,7 +42,12 @@ class AbhakelnApi {
     data.items.forEach(item => {
       items.push(this.encryption.decryptItemData(item, list, this.appState.userData.userId, this.appState.masterKey));
     });
-    items.sort((a, b) => (a.sortOrder > b.sortOrder ? 1 : a.sortOrder === b.sortOrder ? 0 : -1));
+    items.sort((a, b) => {
+      if (a.sortOrder && b.sortOrder) {
+        return (a.sortOrder > b.sortOrder ? 1 : a.sortOrder === b.sortOrder ? 0 : -1)
+      }
+      return (a.createdAt < b.createdAt ? 1 : a.createdAt === b.createdAt ? 0 : -1)
+    });
     this.appState.listData.items = items;
   }
 
