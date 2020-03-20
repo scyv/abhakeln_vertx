@@ -27,7 +27,7 @@
   overflow-y: hidden;
   flex-grow: 1;
   flex-shrink: 0;
-  padding: 0px 0px;
+  padding: 0;
   display: flex;
   flex-direction: column;
 }
@@ -324,7 +324,7 @@
 }
 
 #details .card {
-  background: #fff9b5;
+  background: #fffde0;
 }
 
 #details .card-content .content {

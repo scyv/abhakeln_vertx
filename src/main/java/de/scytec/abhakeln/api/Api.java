@@ -52,6 +52,12 @@ public class Api {
         if (json.containsKey("notes")) {
             set.put("notes", json.getString("notes"));
         }
+        if (json.containsKey("dueDate")) {
+            set.put("dueDate", json.getString("dueDate"));
+        }
+        if (json.containsKey("reminder")) {
+            set.put("reminder", json.getString("reminder"));
+        }
         itemToUpdate.put("$set", set);
 
         vertx.eventBus().rxRequest("db-queue", itemToUpdate, options)

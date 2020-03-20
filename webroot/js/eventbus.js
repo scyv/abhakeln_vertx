@@ -39,6 +39,8 @@ class AbhakelnEventBus {
           localItem.task = decrypted.task;
           localItem.notes = decrypted.notes;
           localItem.sortOrder = decrypted.sortOrder;
+          localItem.dueDate = decrypted.dueDate;
+          localItem.reminder = decrypted.reminder;
         }
         break;
       case "share-list":
