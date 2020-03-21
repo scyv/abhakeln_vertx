@@ -42,7 +42,7 @@
 }
 
 #items {
-  background: url("background.jpg");
+  background: url("backgrounds/default.jpg");
   overflow-x: hidden;
   overflow-y: hidden;
   flex-grow: 1;
@@ -155,10 +155,10 @@
 }
 .ah-checkbox-check {
   position: absolute;
-  top: 9px;
-  left: 9px;
-  height: 25px;
-  width: 25px;
+  top: 12px;
+  left: 12px;
+  height: 20px;
+  width: 20px;
   background: #e6e6e6;
   border: 1px solid #dcdcdc;
   border-radius: 5px;
@@ -191,8 +191,8 @@
   display: block;
 }
 .ah-checkbox-label .ah-checkbox-check:after {
-  left: 8px;
-  top: 4px;
+  left: 6px;
+  top: 1px;
   width: 5px;
   height: 11px;
   border: solid #ffffff;
@@ -216,8 +216,8 @@
 }
 
 .show-done-checkbox.ah-checkbox-label .ah-checkbox-check:after {
-  top: 5px;
-  left: 10px;
+  top: 7px;
+  left: 7px;
 }
 
 .fade-enter-active,

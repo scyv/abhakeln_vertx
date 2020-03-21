@@ -7,7 +7,7 @@ class AbhakelnApi {
   }
 
   async loadLists() {
-    const resp = await fetch(this.apiEndpoint + "/lists/");
+    const resp = await fetch(this.apiEndpoint + "lists/");
     const data = await resp.json();
     this.appState.clearLists();
     const lists = [];
@@ -35,7 +35,7 @@ class AbhakelnApi {
       this.appState.clearItems();
       return;
     }
-    const resp = await fetch(this.apiEndpoint + "/lists/" + list._id + "/");
+    const resp = await fetch(this.apiEndpoint + "lists/" + list._id + "/");
     const data = await resp.json();
     this.appState.clearItems();
     const doneItems = [];
