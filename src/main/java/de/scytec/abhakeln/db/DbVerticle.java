@@ -14,6 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Collectors;
 
 public class DbVerticle extends AbstractVerticle {
 
@@ -22,7 +23,7 @@ public class DbVerticle extends AbstractVerticle {
     private MongoClient mongoClient;
 
     @Override
-    public void start(Promise<Void> promise) throws Exception {
+    public void start(Promise<Void> promise) {
         LOGGER.info("Starting " + this.getClass().getSimpleName());
 
         mongoClient = MongoClient.createShared(vertx, new DbConfig().get(config()));
@@ -48,6 +49,9 @@ public class DbVerticle extends AbstractVerticle {
                 this.getListData(msg);
                 break;
             }
+            case "get-all-items":
+                this.getAllItems(msg);
+                break;
             case "create-list-item":
                 this.createListItem(msg);
                 break;
@@ -135,6 +139,21 @@ public class DbVerticle extends AbstractVerticle {
                 });
     }
 
+    private void getAllItems(Message<JsonObject> msg) {
+        String userId = msg.body().getString("userId");
+
+        mongoClient.rxFind("lists", new JsonObject().put("owners.userId", userId))
+                .map(result -> result.stream().map(obj -> obj.getString("_id")).collect(Collectors.toList()))
+                .flatMap(lists -> mongoClient.rxFind("items",
+                        new JsonObject().put("listId",
+                                new JsonObject().put("$in", lists))))
+                .subscribe(result -> {
+                    JsonObject listData = new JsonObject();
+                    listData.put("items", new JsonArray(result));
+                    msg.reply(listData);
+                });
+    }
+
     private void createList(Message<JsonObject> msg) {
         mongoClient.rxSave("lists", msg.body()).subscribe(
                 id -> {
@@ -150,9 +169,7 @@ public class DbVerticle extends AbstractVerticle {
 
     private void findLists(Message<JsonObject> msg) {
         mongoClient.rxFind("lists", new JsonObject().put("owners.userId", msg.body().getString("userId"))).subscribe(
-                result -> {
-                    msg.reply(new JsonArray(result));
-                });
+                result -> msg.reply(new JsonArray(result)));
     }
 
     private Maybe<JsonArray> userHasListAccess(String userId, String listId) {
@@ -172,17 +189,13 @@ public class DbVerticle extends AbstractVerticle {
         JsonObject sortUpdate = msg.body();
         String userId = sortUpdate.getString("userId");
         String listId = sortUpdate.getString("listId");
-        userHasListAccess(userId, listId).subscribe(hasAccess -> {
-            sortUpdate.getJsonArray("sorting").forEach(sortInfo -> {
-                mongoClient.rxUpdateCollection("items",
-                        new JsonObject().put("_id", ((JsonObject) sortInfo).getString("_id")),
-                        new JsonObject().put("$set",
-                                new JsonObject().put("sortOrder", ((JsonObject) sortInfo).getInteger("sortOrder")))
-                ).subscribe();
-            });
-
-        });
-
+        userHasListAccess(userId, listId).subscribe(hasAccess ->
+                sortUpdate.getJsonArray("sorting").forEach(sortInfo ->
+                        mongoClient.rxUpdateCollection("items",
+                                new JsonObject().put("_id", ((JsonObject) sortInfo).getString("_id")),
+                                new JsonObject().put("$set",
+                                        new JsonObject().put("sortOrder", ((JsonObject) sortInfo).getInteger("sortOrder")))
+                        ).subscribe()));
     }
 
     private void shareList(Message<JsonObject> msg) {
@@ -234,7 +247,7 @@ public class DbVerticle extends AbstractVerticle {
     }
 
     @Override
-    public void stop() throws Exception {
+    public void stop() {
         mongoClient.close();
     }
 

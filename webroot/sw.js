@@ -10,7 +10,6 @@ workbox.routing.registerRoute(
     new workbox.strategies.CacheFirst()
 );
 
-
 workbox.routing.registerRoute(
     /\/js[^\/]*js$/,
     new workbox.strategies.StaleWhileRevalidate()
@@ -23,16 +22,17 @@ workbox.routing.registerRoute(
 
 workbox.routing.registerRoute(
     /\/login\/.*$/,
-    new workbox.strategies.StaleWhileRevalidate()
+    new workbox.strategies.NetworkOnly()
 );
 
 workbox.routing.registerRoute(
-    /\/[^\/]*(css|js|html|json)$/,
+    /\/[^\/]*(?:css|js|html|json)$/,
     new workbox.strategies.StaleWhileRevalidate()
 );
 
+
 workbox.routing.registerRoute(
-    /\/$/,
+    "/",
     new workbox.strategies.StaleWhileRevalidate()
 );
 
@@ -55,7 +55,7 @@ workbox.routing.registerRoute(
     })
 );
 
-const bgSyncPlugin = new workbox.backgroundSync.BackgroundSyncPlugin('noteUpdateQueue', {
+const bgSyncPlugin = new workbox.backgroundSync.BackgroundSyncPlugin('updateQueue', {
     maxRetentionTime: 24 * 60, // Retry for max of 24 Hours (specified in minutes),
     onSync: (ev) => {
         ev.queue.replayRequests().then(() => {

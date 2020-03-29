@@ -37,13 +37,14 @@
 
 <body>
 <script>
-    // Check that service workers are supported
-    if ('serviceWorker' in navigator) {
-        // Use the window load event to keep the page load performant
-        window.addEventListener('load', () => {
-            navigator.serviceWorker.register('./sw.js');
-        });
-    }
+        // Check that service workers are supported
+        if ('serviceWorker' in navigator) {
+            // Use the window load event to keep the page load performant
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js');
+            });
+        }
+
 </script>
 <script src='./js/lib/vue.js'></script>
 <script src="./js/lib/sockjs.min.js"></script>
@@ -105,7 +106,8 @@
         </ul>
         <div class="field">
             <div class="control">
-                <input class="input" name="addList" placeholder="Neue Liste anlegen" v-on:keyup.enter="addListKey">
+                <input type="text" class="input" name="addList" placeholder="Neue Liste anlegen"
+                       v-on:keyup.enter="addListKey" value="" autocomplete="off">
             </div>
         </div>
     </div>
@@ -136,16 +138,16 @@
             </aside>
             <div class="field">
                 <div class="control">
-                    <input class="input" name="addItem" placeholder="Aufgabe anlegen" v-on:keyup.enter="addItemKey">
+                    <input type="text" class="input" name="addItem" placeholder="Aufgabe anlegen"
+                           v-on:keyup.enter="addItemKey" value="" autocomplete="off">
                 </div>
             </div>
         </div>
         <div class="items-content">
             <div>
                 <ah-item class="ah-item" v-bind:data-itemid="item._id" draggable="true"
-                         ondragstart="dnd.dragStart(event)"
-                         ondragover="dnd.dragOver(event)" ondragend="dnd.dragEnd()" v-for="item in listData.items"
-                         v-bind:key="item._id" v-bind:item="item"
+                         ondragstart="dnd.dragStart(event)" ondragover="dnd.dragOver(event)" ondragend="dnd.dragEnd()"
+                         v-for="item in listData.items" v-bind:key="item._id" v-bind:item="item"
                          v-bind:selected="selectedItem && item._id == selectedItem._id" v-if="!item.done"/>
             </div>
             <label class="show-done-checkbox ah-checkbox ah-checkbox-label">

@@ -22,44 +22,38 @@ class AbhakelnApi {
     });
     lists.sort((a, b) => (a.name.toLowerCase() > b.name.toLowerCase() ? 1 : -1));
     this.appState.lists = lists;
+    this.loadAllItems();
     this.appState.invitationLists = invitationLists;
     this.appState.hasOpenInvitations = invitationLists.length > 0;
     if (this.appState.selectedList === null && data.length > 0) {
       this.appState.selectedList = data[0];
-      this.loadItems(this.appState.selectedList);
     }
   }
 
-  async loadItems(list) {
-    if (list.nokey) {
-      this.appState.clearItems();
-      return;
-    }
-    const resp = await fetch(this.apiEndpoint + "lists/" + list._id + "/");
+  async loadAllItems() {
+    const resp = await fetch(this.apiEndpoint + "items/");
     const data = await resp.json();
-    this.appState.clearItems();
-    const doneItems = [];
-    const openItems = [];
+    const groupedByList = {};
+    const lists = {};
+    this.appState.lists.forEach(list => {
+      lists[list._id] = list;
+    });
     data.items.forEach(item => {
-      const decrypted = this.encryption.decryptItemData(item, list, this.appState.userData.userId, this.appState.masterKey);
-      if (item.done) {
-        doneItems.push(decrypted);
-      } else {
-        openItems.push(decrypted);
+      const listId = item.listId;
+      const list = lists[listId];
+      if (!groupedByList[listId]) {
+        groupedByList[listId] = [];
+      }
+      try {
+        groupedByList[listId].push(this.encryption.decryptItemData(item, list, this.appState.userData.userId, this.appState.masterKey));
+      } catch (err) {
+        console.error("Could not decrypt item", item._id);
       }
     });
-    openItems.sort((a, b) => {
-        if (a.sortOrder && b.sortOrder) {
-          return (a.sortOrder > b.sortOrder ? 1 : a.sortOrder === b.sortOrder ? 0 : -1)
-        }
-        return (a.createdAt < b.createdAt ? 1 : a.createdAt === b.createdAt ? 0 : -1)
-    });
-    doneItems.sort((a, b) => {
-      return (a.completedAt < b.completedAt ? 1 : a.completedAt === b.completedAt ? 0 : -1)
-    });
-    this.appState.listData.items = openItems.concat(doneItems);
+    this.appState.allItems = groupedByList;
   }
 
+  
   createList(listData) {
     return fetch(this.apiEndpoint + "lists/", {
       method: "POST",

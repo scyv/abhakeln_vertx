@@ -19,22 +19,31 @@ class AbhakelnEventBus {
     };
   }
 
+  resolveList(listId) {
+    return this.appState.lists.find(l => l._id === listId);
+  }
+
   dispatch(action, body) {
     console.debug("Message from Server:", action, JSON.stringify(body));
     switch (action) {
       case "create-list":
         this.appState.lists.push(this.encryption.decryptListData(body, this.appState.userData.userId, this.appState.masterKey));
         this.appState.lists = this.appState.lists.sort((a, b) => (a.name.toLowerCase() > b.name.toLowerCase() ? 1 : -1));
+        this.appState.listData.items = [];
         break;
-      case "create-list-item":
-        if (body.listId === this.appState.selectedList._id) {
-          this.appState.listData.items.splice(0, 0, this.encryption.decryptItemData(body, this.appState.selectedList, this.appState.userData.userId, this.appState.masterKey));
-        }
+      case "create-list-item": {
+        const list = this.appState.allItems[body.listId] || [];
+        const listData = this.resolveList(body.listId);
+        const decrypted = this.encryption.decryptItemData(body, listData, this.appState.userData.userId, this.appState.masterKey);
+        list.splice(0, 0, decrypted);
         break;
-      case "update-item-data":
-        const localItem = this.appState.listData.items.find(i => i._id === body._id);
+      }
+      case "update-item-data": {
+        const list = this.appState.allItems[body.listId] || [];
+        const localItem = list.find(i => i._id === body._id);
         if (localItem) {
-          const decrypted = this.encryption.decryptItemData(body, this.appState.selectedList, this.appState.userData.userId, this.appState.masterKey);
+          const listData = this.resolveList(body.listId);
+          const decrypted = this.encryption.decryptItemData(body, listData, this.appState.userData.userId, this.appState.masterKey);
           localItem.done = decrypted.done;
           localItem.task = decrypted.task;
           localItem.notes = decrypted.notes;
@@ -43,6 +52,7 @@ class AbhakelnEventBus {
           localItem.reminder = decrypted.reminder;
         }
         break;
+      }
       case "share-list":
         this.appState.menuAlert = true;
         break;

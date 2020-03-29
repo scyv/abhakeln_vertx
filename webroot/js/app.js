@@ -1,6 +1,7 @@
 // inital app state
 const appState = {
   lists: [],
+  allItems: {},
   selectedList: null,
   selectedItem: null,
   joinList: null,

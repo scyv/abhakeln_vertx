@@ -62,7 +62,7 @@ public class Api {
 
         vertx.eventBus().rxRequest("db-queue", itemToUpdate, options)
                 .subscribe(item -> {
-                    routingContext.response().end(((JsonObject) item.body()).encodePrettily());
+                    routingContext.response().end(((JsonObject) item.body()).encode());
                 }, error -> {
                     LOGGER.error("Could not update item {}", itemId, error);
                     routingContext.response()
@@ -86,7 +86,7 @@ public class Api {
 
         vertx.eventBus().rxRequest("db-queue", newList, options)
                 .subscribe(list -> {
-                    routingContext.response().end(((JsonObject) list.body()).encodePrettily());
+                    routingContext.response().end(((JsonObject) list.body()).encode());
                 }, error -> {
                     LOGGER.error("Could not create list", error);
                     routingContext.response()
@@ -100,12 +100,25 @@ public class Api {
                 new JsonObject().put("userId", getUserId(routingContext)),
                 options
         ).subscribe(lists -> {
-            routingContext.response().end(((JsonArray) lists.body()).encodePrettily());
+            routingContext.response().end(((JsonArray) lists.body()).encode());
         }, error -> {
             LOGGER.error("Could not retrieve lists", error);
             routingContext.response()
                     .setStatusCode(500).end(error.getMessage());
         });
+    }
+
+    public void getAllItems(RoutingContext routingContext) {
+        DeliveryOptions options = new DeliveryOptions().addHeader("action", "get-all-items");
+        vertx.eventBus().rxRequest("db-queue",
+                new JsonObject().put("userId", getUserId(routingContext)), options)
+                .subscribe(listData -> {
+                    routingContext.response().end(((JsonObject) listData.body()).encode());
+                }, error -> {
+                    LOGGER.error("Could not retrieve items", error);
+                    routingContext.response()
+                            .setStatusCode(500).end(error.getMessage());
+                });
     }
 
     public void getListData(RoutingContext routingContext) {
@@ -114,7 +127,7 @@ public class Api {
         vertx.eventBus().rxRequest("db-queue",
                 new JsonObject().put("userId", getUserId(routingContext)).put("listId", listId), options)
                 .subscribe(listData -> {
-                    routingContext.response().end(((JsonObject) listData.body()).encodePrettily());
+                    routingContext.response().end(((JsonObject) listData.body()).encode());
                 }, error -> {
                     LOGGER.error("Could not retrieve list data for list {}", listId, error);
                     routingContext.response()
@@ -144,7 +157,7 @@ public class Api {
 
         vertx.eventBus().rxRequest("db-queue", newItem, options)
                 .subscribe(list -> {
-                    routingContext.response().end(((JsonObject) list.body()).encodePrettily());
+                    routingContext.response().end(((JsonObject) list.body()).encode());
                 }, error -> {
                     LOGGER.error("Could not create item for list {}", listId, error);
                     routingContext.response()
