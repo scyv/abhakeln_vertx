@@ -45,31 +45,30 @@ public class DbVerticle extends AbstractVerticle {
             case "create-list":
                 this.createList(msg);
                 break;
-            case "get-list-data": {
+            case "get-list-data":
                 this.getListData(msg);
                 break;
-            }
             case "get-all-items":
                 this.getAllItems(msg);
                 break;
             case "create-list-item":
                 this.createListItem(msg);
                 break;
+            case "update-list-data":
+                this.updateList(msg);
+                break;
             case "update-list-itemorder":
                 this.updateListItemOrder(msg);
                 break;
-            case "update-item-data": {
+            case "update-item-data":
                 this.updateListItem(msg);
                 break;
-            }
-            case "confirm-share-list": {
+            case "confirm-share-list":
                 this.confirmShareList(msg);
                 break;
-            }
-            case "share-list": {
+            case "share-list":
                 this.shareList(msg);
                 break;
-            }
         }
     }
 
@@ -165,6 +164,30 @@ public class DbVerticle extends AbstractVerticle {
                     vertx.eventBus().publish("sync-queue", newList, options);
                 }
         );
+    }
+
+    private void updateList(Message<JsonObject> msg) {
+        final AtomicReference<JsonArray> listOwners = new AtomicReference<>();
+        JsonObject listToUpdate = msg.body();
+        String listId = listToUpdate.getString("_id");
+
+        userHasListAccess(listToUpdate.getString("userId"), listId)
+                .flatMap(hasAccess -> {
+                    listToUpdate.remove("userId");
+                    listToUpdate.remove("_id");
+                    listOwners.set(hasAccess);
+                    return Single.just(listToUpdate).toMaybe();
+                })
+
+                .flatMap(list -> mongoClient.rxUpdateCollection("lists", new JsonObject().put("_id", listId), listToUpdate))
+                .flatMap(updateResult -> mongoClient.rxFindOne("lists", new JsonObject().put("_id", listId), null))
+                .subscribe(result -> {
+                    msg.reply(result);
+                    DeliveryOptions options = new DeliveryOptions()
+                            .addHeader("action", "update-list-data")
+                            .addHeader("for-users", String.valueOf(listOwners.get()));
+                    vertx.eventBus().publish("sync-queue", result, options);
+                });
     }
 
     private void findLists(Message<JsonObject> msg) {

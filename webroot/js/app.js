@@ -22,6 +22,8 @@ const appState = {
   menuAlert: false,
   listMenuVisible: false,
   itemMenuVisible: false,
+  renameItemVisible: false,
+  renameListVisible: false,
   clearItems() {
     this.listData.items.length = 0;
     this.listData.items.pop();

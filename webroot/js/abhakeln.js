@@ -229,7 +229,7 @@ class Abhakeln {
       template: `
         <transition name="fade" v-bind:name="transitionEnabled">
         <div class="ah-checkbox ah-checkbox-label" v-bind:class="{'is-active': selected}" v-on:click="showDetails">
-            <span>{{ item.task }} {{item.sortOrder}}</span>
+            <span>{{ item.task }}</span>
             <label v-on:click="nobubble">
             <input type="checkbox" checked="checked" v-on:input="select" v-bind:id="item._id" v-model="item.done" />
             <div class="ah-checkbox-check"></div>
@@ -357,6 +357,92 @@ class Abhakeln {
         </div>
       </div>            
       `
+    });
+
+    Vue.component("ah-renamelist", {
+      props: ["visible", "list"],
+      data: function() {
+        return {
+          oldName: this.list.name
+        };
+      },
+      methods: {
+        renameList() {
+          (async () => {
+            await self.api.updateList(this.list);
+            self.appState.renameListVisible = false;
+          })();
+        },
+        closeModal() {
+          self.appState.renameListVisible = false;
+          this.list.name = this.oldName;
+        }
+      },
+      template: `
+        <div class="modal" v-bind:class="{'is-active': visible}">
+          <div class="modal-background"></div>
+          <div class="modal-card">
+            <header class="modal-card-head">
+              <p class="modal-card-title">Liste umbenennen</p>
+              <button class="delete" aria-label="close" v-on:click="closeModal"></button>
+            </header>
+            <section class="modal-card-body">
+              <div class="field">
+                <div class="control">
+                  <input type="text" class="input" id="newListName" placeholder="Hier den neuen Namen der Liste eingeben" v-model="list.name"  />
+                </div>
+              </div>
+            </section>
+            <footer class="modal-card-foot">
+              <button class="button is-success" v-on:click="renameList">Umbenennen</button>
+              <button class="button" v-on:click="closeModal">Schließen</button>
+            </footer>
+          </div>
+        </div>            
+        `
+    });
+
+    Vue.component("ah-renameitem", {
+      props: ["visible", "item"],
+      data: function() {
+        return {
+          oldTask: this.item.task
+        };
+      },
+      methods: {
+        renameItem() {
+          (async () => {
+            await self.api.updateItem(self.appState.selectedItem, self.appState.selectedList);
+            self.appState.renameItemVisible = false;
+          })();
+        },
+        closeModal() {
+          self.appState.renameItemVisible = false;
+          this.item.task = this.oldTask;
+        }
+      },
+      template: `
+          <div class="modal" v-bind:class="{'is-active': visible}">
+            <div class="modal-background"></div>
+            <div class="modal-card">
+              <header class="modal-card-head">
+                <p class="modal-card-title">Aufgabe umbenennen</p>
+                <button class="delete" aria-label="close" v-on:click="closeModal"></button>
+              </header>
+              <section class="modal-card-body">
+                <div class="field">
+                  <div class="control">
+                    <input type="text" class="input" id="newItemName" placeholder="Hier den neuen Aufgabentitel eingeben" v-model="item.task"  />
+                  </div>
+                </div>
+              </section>
+              <footer class="modal-card-foot">
+                <button class="button is-success" v-on:click="renameItem">Umbenennen</button>
+                <button class="button" v-on:click="closeModal">Schließen</button>
+              </footer>
+            </div>
+          </div>            
+          `
     });
 
     Vue.component("ah-wunderlist-import", {

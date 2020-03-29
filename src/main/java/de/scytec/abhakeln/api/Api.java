@@ -167,13 +167,22 @@ public class Api {
 
     public void updateList(RoutingContext routingContext) {
         String listId = routingContext.pathParam("id");
-        DeliveryOptions options = new DeliveryOptions().addHeader("action", "update-list-itemorder");
         JsonObject updateList = new JsonObject();
         updateList.put("userId", getUserId(routingContext));
-        updateList.put("listId", listId);
+        updateList.put("_id", listId);
         JsonObject json = routingContext.getBodyAsJson();
         if (json.containsKey("sorting")) {
+            DeliveryOptions options = new DeliveryOptions().addHeader("action", "update-list-itemorder");
             updateList.put("sorting", json.getJsonArray("sorting"));
+            vertx.eventBus().send("db-queue", updateList, options);
+        } else {
+            DeliveryOptions options = new DeliveryOptions().addHeader("action", "update-list-data");
+            JsonObject set = new JsonObject();
+            if (json.containsKey("name")) {
+                set.put("name", json.getString("name"));
+            }
+            updateList.put("$set", set);
+
             vertx.eventBus().send("db-queue", updateList, options);
         }
         routingContext.response().end();

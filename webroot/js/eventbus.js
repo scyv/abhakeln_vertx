@@ -53,6 +53,13 @@ class AbhakelnEventBus {
         }
         break;
       }
+      case "update-list-data": {
+        const list = this.resolveList(body._id);
+        const decrypted = this.encryption.decryptListData(body, this.appState.userData.userId, this.appState.masterKey);
+        list.name = decrypted.name;
+        this.appState.lists = this.appState.lists.sort((a, b) => (a.name.toLowerCase() > b.name.toLowerCase() ? 1 : -1));
+        break;
+      }
       case "share-list":
         this.appState.menuAlert = true;
         break;

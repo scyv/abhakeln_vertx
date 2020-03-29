@@ -31,9 +31,11 @@ class Encryption {
     return sodium.crypto_pwhash_str_verify(hash, password);
   }
 
-  encryptListData(listData, masterKey) {
-    const listKey = this.createKey();
-    listData.key = this.encrypt(listKey, masterKey);
+  encryptListData(listData, userId, masterKey, generateKey = false) {
+    const listKey = generateKey ? this.createKey() : this.decryptListKey(listData, userId, masterKey);
+    if (generateKey) {
+      listData.key = this.encrypt(listKey, masterKey);
+    }
     const copy = Object.assign({}, listData);
     copy.name = this.encrypt(copy.name, listKey);
     if (copy.folder) {

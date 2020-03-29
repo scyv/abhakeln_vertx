@@ -39,7 +39,6 @@
 <script>
         // Check that service workers are supported
         if ('serviceWorker' in navigator) {
-            // Use the window load event to keep the page load performant
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('./sw.js');
             });
@@ -118,7 +117,8 @@
                     <button type="button" class="level-item button is-small is-light is-hidden-tablet"
                             v-on:click="showLists">&laquo; Zurück
                     </button>
-                    <div class="level-item">{{selectedList.name}}</div>
+                    <div class="level-item" v-on:click="renameListVisible=true">{{selectedList.name}}</div>
+                    <ah-renamelist v-bind:visible="renameListVisible" v-bind:list="selectedList"/>
                 </div>
                 <div class="level-right">
                     <a role="button" v-on:click="toggleItemMenu" class="burger-button" aria-label="menu"
@@ -167,7 +167,8 @@
                 <button type="button" class="level-item button is-small is-light is-hidden-tablet"
                         v-on:click="showItems">&laquo; Zurück
                 </button>
-                <div class="level-item">{{selectedItem.task}}</div>
+                <div class="level-item" v-on:click="renameItemVisible=true">{{selectedItem.task}}</div>
+                <ah-renameitem v-bind:visible="renameItemVisible" v-bind:item="selectedItem"/>
             </div>
         </div>
         <div class="card">

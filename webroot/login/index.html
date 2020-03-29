@@ -33,6 +33,16 @@
 </head>
 
 <body>
+<script>
+        // Check that service workers are supported
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('../sw.js');
+            });
+        }
+
+
+</script>
 <script src='../js/lib/vue.js'></script>
 <div id="loginform">
     <section class="hero">

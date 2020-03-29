@@ -13,11 +13,15 @@ class AbhakelnApi {
     const lists = [];
     const invitationLists = [];
     data.forEach(list => {
-      const decryptedList = this.encryption.decryptListData(list, this.appState.userData.userId, this.appState.masterKey);
-      if (decryptedList.nokey) {
-        invitationLists.push(list);
-      } else {
-        lists.push(decryptedList);
+      try {
+        const decryptedList = this.encryption.decryptListData(list, this.appState.userData.userId, this.appState.masterKey);
+        if (decryptedList.nokey) {
+          invitationLists.push(list);
+        } else {
+          lists.push(decryptedList);
+        }
+      } catch (err) {
+        console.error("Could not decrypt list", list._id);
       }
     });
     lists.sort((a, b) => (a.name.toLowerCase() > b.name.toLowerCase() ? 1 : -1));
@@ -53,14 +57,23 @@ class AbhakelnApi {
     this.appState.allItems = groupedByList;
   }
 
-  
   createList(listData) {
     return fetch(this.apiEndpoint + "lists/", {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
       },
-      body: JSON.stringify(this.encryption.encryptListData(listData, this.appState.masterKey))
+      body: JSON.stringify(this.encryption.encryptListData(listData, "", this.appState.masterKey, true))
+    });
+  }
+
+  updateList(listData) {
+    return fetch(this.apiEndpoint + "lists/" + listData._id + "/", {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(this.encryption.encryptListData(listData, this.appState.userData.userId, this.appState.masterKey))
     });
   }
 
