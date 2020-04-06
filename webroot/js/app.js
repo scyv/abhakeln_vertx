@@ -1,5 +1,6 @@
 // inital app state
 const appState = {
+  offline: false,
   lists: [],
   allItems: {},
   selectedList: null,
