@@ -8,26 +8,26 @@
 
     <link rel="manifest" href="/manifest.json">
 
-    <link rel="apple-touch-icon-precomposed" sizes="57x57" href="/icons/apple-touch-icon-57x57.png" />
-    <link rel="apple-touch-icon-precomposed" sizes="114x114" href="/icons/apple-touch-icon-114x114.png" />
-    <link rel="apple-touch-icon-precomposed" sizes="72x72" href="/icons/apple-touch-icon-72x72.png" />
-    <link rel="apple-touch-icon-precomposed" sizes="144x144" href="/icons/apple-touch-icon-144x144.png" />
-    <link rel="apple-touch-icon-precomposed" sizes="60x60" href="/icons/apple-touch-icon-60x60.png" />
-    <link rel="apple-touch-icon-precomposed" sizes="120x120" href="/icons/apple-touch-icon-120x120.png" />
-    <link rel="apple-touch-icon-precomposed" sizes="76x76" href="/icons/apple-touch-icon-76x76.png" />
-    <link rel="apple-touch-icon-precomposed" sizes="152x152" href="/icons/apple-touch-icon-152x152.png" />
-    <link rel="icon" type="image/png" href="/icons/favicon-196x196.png" sizes="196x196" />
-    <link rel="icon" type="image/png" href="/icons/favicon-96x96.png" sizes="96x96" />
-    <link rel="icon" type="image/png" href="/icons/favicon-32x32.png" sizes="32x32" />
-    <link rel="icon" type="image/png" href="/icons/favicon-16x16.png" sizes="16x16" />
-    <link rel="icon" type="image/png" href="/icons/favicon-128.png" sizes="128x128" />
+    <link rel="apple-touch-icon-precomposed" sizes="57x57" href="/icons/apple-touch-icon-57x57.png"/>
+    <link rel="apple-touch-icon-precomposed" sizes="114x114" href="/icons/apple-touch-icon-114x114.png"/>
+    <link rel="apple-touch-icon-precomposed" sizes="72x72" href="/icons/apple-touch-icon-72x72.png"/>
+    <link rel="apple-touch-icon-precomposed" sizes="144x144" href="/icons/apple-touch-icon-144x144.png"/>
+    <link rel="apple-touch-icon-precomposed" sizes="60x60" href="/icons/apple-touch-icon-60x60.png"/>
+    <link rel="apple-touch-icon-precomposed" sizes="120x120" href="/icons/apple-touch-icon-120x120.png"/>
+    <link rel="apple-touch-icon-precomposed" sizes="76x76" href="/icons/apple-touch-icon-76x76.png"/>
+    <link rel="apple-touch-icon-precomposed" sizes="152x152" href="/icons/apple-touch-icon-152x152.png"/>
+    <link rel="icon" type="image/png" href="/icons/favicon-196x196.png" sizes="196x196"/>
+    <link rel="icon" type="image/png" href="/icons/favicon-96x96.png" sizes="96x96"/>
+    <link rel="icon" type="image/png" href="/icons/favicon-32x32.png" sizes="32x32"/>
+    <link rel="icon" type="image/png" href="/icons/favicon-16x16.png" sizes="16x16"/>
+    <link rel="icon" type="image/png" href="/icons/favicon-128.png" sizes="128x128"/>
     <meta name="application-name" content="Abhakeln"/>
-    <meta name="msapplication-TileColor" content="#1D91BE" />
-    <meta name="msapplication-TileImage" content="/icons/mstile-144x144.png" />
-    <meta name="msapplication-square70x70logo" content="/icons/mstile-70x70.png" />
-    <meta name="msapplication-square150x150logo" content="/icons/mstile-150x150.png" />
-    <meta name="msapplication-wide310x150logo" content="/icons/mstile-310x150.png" />
-    <meta name="msapplication-square310x310logo" content="/icons/mstile-310x310.png" />
+    <meta name="msapplication-TileColor" content="#1D91BE"/>
+    <meta name="msapplication-TileImage" content="/icons/mstile-144x144.png"/>
+    <meta name="msapplication-square70x70logo" content="/icons/mstile-70x70.png"/>
+    <meta name="msapplication-square150x150logo" content="/icons/mstile-150x150.png"/>
+    <meta name="msapplication-wide310x150logo" content="/icons/mstile-310x150.png"/>
+    <meta name="msapplication-square310x310logo" content="/icons/mstile-310x310.png"/>
 
     <link rel="stylesheet" href="./css/lib/bulma.min.css">
     <link rel="stylesheet" href="./css/app.css">
@@ -37,13 +37,12 @@
 
 <body>
 <script>
-        // Check that service workers are supported
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('./sw.js');
-            });
-        }
-
+    // Check that service workers are supported
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('./sw.js');
+        });
+    }
 </script>
 <script src='./js/lib/vue.js'></script>
 <script src="./js/lib/sockjs.min.js"></script>
@@ -58,11 +57,18 @@
 <script src="./js/storage.js"></script>
 <script src="./js/encryption.js"></script>
 <script src="./js/api.js"></script>
+<script src="./js/components/import-wunderlist.js"></script>
+<script src="./js/components/item.js"></script>
+<script src="./js/components/join-list.js"></script>
+<script src="./js/components/list.js"></script>
+<script src="./js/components/rename-item.js"></script>
+<script src="./js/components/rename-list.js"></script>
+<script src="./js/components/share-list.js"></script>
 <script src="./js/abhakeln.js"></script>
 <script src="./js/eventbus.js"></script>
 <script src="./js/app.js"></script>
-<div id="app">
-    <div id="lists" v-cloak v-bind:class="{'is-hidden-mobile': itemsVisible || detailsVisible}">
+<div id="app" v-cloak>
+    <div id="lists" v-bind:class="{'is-hidden-mobile': itemsVisible || detailsVisible}">
         <div style="flex-shrink: 0;">
             <a role="button" v-on:click="toggleListMenu" class="burger-button is-pulled-right" aria-label="menu"
                aria-expanded="false"
@@ -72,7 +78,7 @@
                 <span aria-hidden="true"></span>
             </a>
             <div class="title">
-                Abhakeln
+                Abhakeln <span class="subtitle is-6">alpha!</span>
             </div>
         </div>
         <aside class="menu" v-bind:class="{'visible':listMenuVisible}">
@@ -100,7 +106,8 @@
         </div>
 
         <ul>
-            <ah-list v-for="list in lists" v-bind:key="list._id" v-bind:selected="list._id === selectedList._id"
+            <ah-list v-for="list in lists" v-bind:key="list._id"
+                     v-bind:selected="selectedList && list._id === selectedList._id"
                      v-bind:list="list"/>
         </ul>
         <div class="field">
@@ -110,58 +117,62 @@
             </div>
         </div>
     </div>
-    <div id="items" v-cloak v-if="selectedList" v-bind:class="{'is-hidden-mobile': listsVisible || detailsVisible}">
-        <div class="items-head">
-            <div class="level list-title is-mobile">
-                <div class="level-left">
-                    <button type="button" class="level-item button is-small is-light is-hidden-tablet"
-                            v-on:click="showLists">&laquo; Zurück
-                    </button>
-                    <div class="level-item" v-on:click="renameListVisible=true">{{selectedList.name}}</div>
-                    <ah-renamelist v-bind:visible="renameListVisible" v-bind:list="selectedList"/>
+    <div class="container-for-background" v-bind:class="{'is-hidden-mobile': listsVisible || detailsVisible}">
+        <div id="items" v-if="selectedList">
+            <div class="items-head">
+                <div class="level list-title is-mobile">
+                    <div class="level-left">
+                        <button type="button" class="level-item button is-small is-light is-hidden-tablet"
+                                v-on:click="showLists">&laquo; Zurück
+                        </button>
+                        <div class="level-item" v-on:click="renameListVisible=true">{{selectedList.name}}</div>
+                        <ah-renamelist v-bind:visible="renameListVisible" v-bind:list="selectedList"/>
+                    </div>
+                    <div class="level-right">
+                        <a role="button" v-on:click="toggleItemMenu" class="burger-button" aria-label="menu"
+                           aria-expanded="false" v-bind:class="{'is-active':itemMenuVisible}">
+                            <span aria-hidden="true"></span>
+                            <span aria-hidden="true"></span>
+                            <span aria-hidden="true"></span>
+                        </a>
+                    </div>
                 </div>
-                <div class="level-right">
-                    <a role="button" v-on:click="toggleItemMenu" class="burger-button" aria-label="menu"
-                       aria-expanded="false" v-bind:class="{'is-active':itemMenuVisible}">
-                        <span aria-hidden="true"></span>
-                        <span aria-hidden="true"></span>
-                        <span aria-hidden="true"></span>
-                    </a>
+                <aside class="menu" v-bind:class="{'visible':itemMenuVisible}">
+                    <ul class="menu-list">
+                        <li><a v-on:click="showShareList">Freigeben</a></li>
+                        <li><a>Löschen</a></li>
+                    </ul>
+                    <ah-sharelist v-bind:visible="shareListVisible" v-bind:list="selectedList"/>
+                </aside>
+                <div class="field">
+                    <div class="control">
+                        <input type="text" class="input" name="addItem" placeholder="Aufgabe anlegen"
+                               v-on:keyup.enter="addItemKey" value="" autocomplete="off">
+                    </div>
                 </div>
             </div>
-            <aside class="menu" v-bind:class="{'visible':itemMenuVisible}">
-                <ul class="menu-list">
-                    <li><a v-on:click="showShareList">Freigeben</a></li>
-                    <li><a>Löschen</a></li>
-                </ul>
-                <ah-sharelist v-bind:visible="shareListVisible" v-bind:list="selectedList"/>
-            </aside>
-            <div class="field">
-                <div class="control">
-                    <input type="text" class="input" name="addItem" placeholder="Aufgabe anlegen"
-                           v-on:keyup.enter="addItemKey" value="" autocomplete="off">
+            <div class="items-content">
+                <div>
+                    <ah-item class="ah-item" v-bind:data-itemid="item._id" draggable="true"
+                             ondragstart="dnd.dragStart(event)" ondragover="dnd.dragOver(event)"
+                             ondragend="dnd.dragEnd()"
+                             v-for="item in listData.items" v-bind:key="item._id" v-bind:item="item"
+                             v-bind:selected="selectedItem && item._id == selectedItem._id" v-if="!item.done"/>
                 </div>
-            </div>
-        </div>
-        <div class="items-content">
-            <div>
-                <ah-item class="ah-item" v-bind:data-itemid="item._id" draggable="true"
-                         ondragstart="dnd.dragStart(event)" ondragover="dnd.dragOver(event)" ondragend="dnd.dragEnd()"
-                         v-for="item in listData.items" v-bind:key="item._id" v-bind:item="item"
-                         v-bind:selected="selectedItem && item._id == selectedItem._id" v-if="!item.done"/>
-            </div>
-            <label class="show-done-checkbox ah-checkbox ah-checkbox-label">
-                Erledigte Einträge zeigen
-                <input type="checkbox" id="showDone" v-model="showDone"/>
-                <div class="ah-checkbox-check"></div>
-            </label>
-            <div>
-                <ah-item class="ah-item" v-for="item in listData.items" v-bind:key="item._id" v-bind:item="item"
-                         v-bind:selected="selectedItem && item._id == selectedItem._id" v-if="showDone && item.done"/>
+                <label class="show-done-checkbox ah-checkbox ah-checkbox-label">
+                    Erledigte Einträge zeigen
+                    <input type="checkbox" id="showDone" v-model="showDone"/>
+                    <div class="ah-checkbox-check"></div>
+                </label>
+                <div>
+                    <ah-item class="ah-item" v-for="item in listData.items" v-bind:key="item._id" v-bind:item="item"
+                             v-bind:selected="selectedItem && item._id == selectedItem._id"
+                             v-if="showDone && item.done"/>
+                </div>
             </div>
         </div>
     </div>
-    <div id="details" v-cloak v-if="selectedItem" v-bind:class="{'is-hidden-mobile': listsVisible || itemsVisible}">
+    <div id="details" v-if="selectedItem" v-bind:class="{'is-hidden-mobile': listsVisible || itemsVisible}">
         <div class="level list-title is-mobile">
             <div class="level-left">
                 <button type="button" class="level-item button is-small is-light is-hidden-tablet"

@@ -3,7 +3,7 @@ class AbhakelnEventBus {
     this.appState = appState;
     this.encryption = new Encryption();
     const eventbus = new EventBus(endpoint, {
-      vertxbus_reconnect_attempts_max: 500,
+      vertxbus_reconnect_attempts_max: 5,
       vertxbus_reconnect_delay_min: 1000,
       vertxbus_reconnect_delay_max: 5000,
       vertxbus_reconnect_exponent: 2,
@@ -17,6 +17,9 @@ class AbhakelnEventBus {
         ctx.dispatch(message.headers.action, message.body);
       });
     };
+    eventbus.onclose = function(err) {
+      location.reload();
+    }
   }
 
   resolveList(listId) {
@@ -27,12 +30,18 @@ class AbhakelnEventBus {
     console.debug("Message from Server:", action, JSON.stringify(body));
     switch (action) {
       case "create-list":
-        this.appState.lists.push(this.encryption.decryptListData(body, this.appState.userData.userId, this.appState.masterKey));
+        const newList = this.encryption.decryptListData(body, this.appState.userData.userId, this.appState.masterKey);
+        this.appState.selectedList = newList;
+        this.appState.lists.push(newList);
         this.appState.lists = this.appState.lists.sort((a, b) => (a.name.toLowerCase() > b.name.toLowerCase() ? 1 : -1));
         this.appState.listData.items = [];
         break;
       case "create-list-item": {
-        const list = this.appState.allItems[body.listId] || [];
+        let list = this.appState.allItems[body.listId];
+        if (!list) {
+          list = [];
+          this.appState.allItems[body.listId] = list;
+        }
         const listData = this.resolveList(body.listId);
         const decrypted = this.encryption.decryptItemData(body, listData, this.appState.userData.userId, this.appState.masterKey);
         list.splice(0, 0, decrypted);

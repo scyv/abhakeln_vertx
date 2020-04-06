@@ -43,9 +43,9 @@ public class Authentication {
                     context.response().end(new JsonObject()
                             .put("status", "OK")
                             .put("userId", userId).encode());
-                }, err -> {
-                    context.response().setStatusCode(403).end();
-                });
+                }, err -> context.response().setStatusCode(403)
+                        .end(new JsonObject().put("status", "FORBIDDEN")
+                                .encode()));
     }
 
     public void authenticate(BridgeEvent be) {
@@ -81,9 +81,7 @@ public class Authentication {
         )
                 .subscribe(result -> {
                     authenticate(context);
-                }, err -> {
-                    context.response().setStatusCode(500).end();
-                });
+                }, err -> context.response().setStatusCode(500).end());
     }
 
 

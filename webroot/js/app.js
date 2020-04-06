@@ -14,7 +14,7 @@ const appState = {
   masterKey: null,
   wunderlistImportVisible: false,
   shareListVisible: false,
-  listsVisible: true,
+  listsVisible: false,
   itemsVisible: false,
   detailsVisible: false,
   joinListVisible: false,

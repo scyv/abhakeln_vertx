@@ -10,9 +10,19 @@
   -webkit-user-drag: element;
 }
 
-[v-cloak] {
-  display: none;
+input, input:before, input:after {
+  -webkit-user-select: initial;
+  -khtml-user-select: initial;
+  -moz-user-select: initial;
+  -ms-user-select: initial;
+  user-select: initial;
 }
+
+[v-cloak] {
+  display: none !important;
+}
+
+[v-cloak]::before { content: "loading…" }
 
 #app {
   height: 100vh;
@@ -41,11 +51,15 @@
   margin-bottom: 0;
 }
 
-#items {
+.container-for-background {
   background: url("backgrounds/default.jpg");
-  overflow-x: hidden;
-  overflow-y: hidden;
+  background-size: cover;
   flex-grow: 1;
+  overflow: hidden;
+}
+
+#items {
+  overflow: hidden;
   padding: 10px 10px;
   display: flex;
   flex-direction: column;
@@ -106,7 +120,7 @@
 }
 
 #lists ul li.is-active {
-  background: #f14668;
+  background: #1D91BE;
   color: #ffffff;
 }
 

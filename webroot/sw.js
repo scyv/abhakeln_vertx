@@ -12,12 +12,12 @@ workbox.routing.registerRoute(
 
 workbox.routing.registerRoute(
     /\/js[^\/]*js$/,
-    new workbox.strategies.StaleWhileRevalidate()
+    new workbox.strategies.CacheFirst()
 );
 
 workbox.routing.registerRoute(
     /\/css[^\/]*css$/,
-    new workbox.strategies.StaleWhileRevalidate()
+    new workbox.strategies.CacheFirst()
 );
 
 workbox.routing.registerRoute(
@@ -27,15 +27,19 @@ workbox.routing.registerRoute(
 
 workbox.routing.registerRoute(
     /\/[^\/]*(?:css|js|html|json)$/,
-    new workbox.strategies.StaleWhileRevalidate()
+    new workbox.strategies.CacheFirst()
 );
-
 
 workbox.routing.registerRoute(
     "/",
-    new workbox.strategies.StaleWhileRevalidate()
+    new workbox.strategies.CacheFirst({
+        plugins: [
+            new workbox.cacheableResponse.CacheableResponsePlugin({
+                statuses: [200],
+            })
+        ]
+    })
 );
-
 
 workbox.routing.registerRoute(
     // Cache image files.

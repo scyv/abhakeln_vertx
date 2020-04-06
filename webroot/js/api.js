@@ -29,9 +29,6 @@ class AbhakelnApi {
     this.loadAllItems();
     this.appState.invitationLists = invitationLists;
     this.appState.hasOpenInvitations = invitationLists.length > 0;
-    if (this.appState.selectedList === null && data.length > 0) {
-      this.appState.selectedList = data[0];
-    }
   }
 
   async loadAllItems() {
