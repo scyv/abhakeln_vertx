@@ -37,12 +37,134 @@
 
 <body>
 <script>
-    // Check that service workers are supported
-    if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => {
-            navigator.serviceWorker.register('./sw.js');
+    function registerServiceWorker() {
+        return navigator.serviceWorker.register('/sw.js')
+            .then(function (registration) {
+                return registration;
+            })
+            .catch(function (err) {
+                console.error('Unable to register service worker.', err);
+            });
+    }
+
+    function getNotificationPermissionState() {
+        if (navigator.permissions) {
+            return navigator.permissions.query({name: 'notifications'})
+                .then((result) => {
+                    return result.state;
+                });
+        }
+        return new Promise((resolve) => {
+            resolve(Notification.permission);
         });
     }
+
+    function askPermission() {
+        return new Promise(function (resolve, reject) {
+            const permissionResult = Notification.requestPermission(function (result) {
+                resolve(result);
+            });
+
+            if (permissionResult) {
+                permissionResult.then(resolve, reject);
+            }
+        })
+            .then(function (permissionResult) {
+                if (permissionResult !== 'granted') {
+                    throw new Error('We weren\'t granted permission.');
+                }
+            });
+    }
+
+    function urlBase64ToUint8Array(base64String) {
+        const padding = '='.repeat((4 - base64String.length % 4) % 4);
+        const base64 = (base64String + padding)
+            .replace(/\-/g, '+')
+            .replace(/_/g, '/');
+
+        const rawData = window.atob(base64);
+        const outputArray = new Uint8Array(rawData.length);
+
+        for (let i = 0; i < rawData.length; ++i) {
+            outputArray[i] = rawData.charCodeAt(i);
+        }
+        return outputArray;
+    }
+
+    function subscribeUserToPush(swregistration) {
+
+        const subscribeOptions = {
+            userVisibleOnly: true,
+            applicationServerKey: urlBase64ToUint8Array(
+                'BOJ3bVIpDKxWQHABOqHgvtMKfFWbiYuVQAaIj2hBOzRgGfngBLJocrNghdNKtsitNbHoG08YgCXn65aJufr2xlg'
+            )
+        };
+
+        return swregistration.pushManager.subscribe(subscribeOptions)
+            .then(function (pushSubscription) {
+                return pushSubscription;
+            });
+    }
+
+    function sendSubscriptionToBackEnd(subscription) {
+        return fetch('/api/push-subscriptions/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(subscription)
+        })
+            .then(function (response) {
+                if (!response.ok) {
+                    throw new Error('Bad status code from server.');
+                }
+
+                return response.json();
+            })
+            .then(function (responseData) {
+                if (!(responseData.data && responseData.data.success)) {
+                    throw new Error('Bad response from server.');
+                }
+            });
+    }
+
+    function setUpPush(swregistration) {
+        getNotificationPermissionState()
+            .then(function (currentPermissionState) {
+                if (currentPermissionState === 'denied') {
+                    console.warn('The notification permission has been blocked. Nothing we can do.');
+                    return;
+                }
+
+                askPermission()
+                    .then(p => subscribeUserToPush(swregistration))
+                    .then(function (subscription) {
+                        if (subscription) {
+                            return sendSubscriptionToBackEnd(subscription)
+                                .then(function () {
+                                    return subscription;
+                                });
+                        }
+
+                        return subscription;
+                    })
+                    .catch(function (err) {
+                        console.error('Failed to subscribe the user.', err);
+                    });
+
+            })
+            .catch(function (err) {
+                console.log('Unable to register the service worker: ' + err);
+            });
+    }
+
+    window.onload = function () {
+        if ('serviceWorker' in navigator) {
+            registerServiceWorker().then(registration => {
+                setUpPush(registration);
+            });
+        }
+    };
 </script>
 <script src='./js/lib/vue.js'></script>
 <script src="./js/lib/sockjs.min.js"></script>

@@ -13,6 +13,9 @@ import io.vertx.reactivex.ext.mongo.MongoClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
@@ -69,7 +72,57 @@ public class DbVerticle extends AbstractVerticle {
             case "share-list":
                 this.shareList(msg);
                 break;
+            case "create-push-subscription":
+                this.createPushSubscription(msg);
+                break;
+            case "get-notifications":
+                this.getNotifications(msg);
+                break;
         }
+    }
+
+    private void getNotifications(Message<JsonObject> msg) {
+        JsonObject query = new JsonObject()
+                .put("reminder", new JsonObject()
+                        .put("$lte", ZonedDateTime.now(ZoneId.of("UTC")).toString())
+                        .put("$ne", ""))
+                .put("reminderSent", new JsonObject()
+                        .put("$exists", false));
+
+        mongoClient.rxFind("items",
+                query)
+                .flatMap(items -> {
+                    Map<String, Maybe<List<String>>> listOwners = new HashMap<>();
+                    items.forEach(item -> {
+                        listOwners.computeIfAbsent(item.getString("listId"), listId -> getListOwners(listId));
+
+                        // FIXME this will block the thread!
+                        item.put("owners", new JsonArray(listOwners.get(item.getString("listId")).blockingGet()));
+
+                    });
+                    LOGGER.info("" + listOwners.size());
+                    return Single.just(items);
+                })
+                .flatMap(items -> {
+                    Set<String> owners = new HashSet<>();
+                    items.forEach(item -> owners.addAll(item.getJsonArray("owners").getList()));
+                    return mongoClient.rxFind("subscriptions", new JsonObject().put("userId", new JsonObject().put("$in", new JsonArray(new ArrayList<>(owners))))).map(subs -> {
+                        subs.forEach(sub -> {
+                            List<JsonObject> subItems = items.stream().filter(item -> item.getJsonArray("owners").contains(sub.getString("userId"))).collect(Collectors.toList());
+                            sub.put("items", subItems);
+                        });
+                        return subs;
+                    });
+                })
+                .subscribe(result -> {
+                    JsonObject listData = new JsonObject();
+                    listData.put("notifications", new JsonArray(result));
+                    msg.reply(listData);
+                });
+    }
+
+    private void createPushSubscription(Message<JsonObject> msg) {
+        mongoClient.rxSave("push-subscriptions", msg.body()).subscribe(msg::reply);
     }
 
     private void updateListItem(Message<JsonObject> msg) {
@@ -204,6 +257,15 @@ public class DbVerticle extends AbstractVerticle {
                         throw new RuntimeException("FORBIDDEN");
                     }
                     return owners;
+                }
+        );
+    }
+
+    private Maybe<List<String>> getListOwners(String listId) {
+        return mongoClient.rxFindOne("lists", new JsonObject().put("_id", listId), null).map(
+                result -> {
+                    JsonArray owners = result.getJsonArray("owners", new JsonArray());
+                    return owners.stream().map(o -> ((JsonObject) o).getString("userId")).collect(Collectors.toList());
                 }
         );
     }

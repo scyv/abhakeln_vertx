@@ -119,6 +119,10 @@ input, input:before, input:after {
   cursor: pointer;
 }
 
+#lists ul li:active, #lists ul li:hover, #lists ul li:focus {
+  background: rgba(29, 145, 190, 0.22);
+}
+
 #lists ul li.is-active {
   background: #1D91BE;
   color: #ffffff;
