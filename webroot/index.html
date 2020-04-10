@@ -3,31 +3,13 @@
 
 <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="Content-Security-Policy"
+          content="default-src 'self' data: gap: https://www.abhakeln.de wss://www.abhakeln.de 'unsafe-eval' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; media-src *; img-src 'self' data: content:;">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="msapplication-tap-highlight" content="no">
+    <meta name="viewport" content="initial-scale=1, width=device-width, viewport-fit=cover">
+
     <title>Abhakeln</title>
-
-    <link rel="manifest" href="/manifest.json">
-
-    <link rel="apple-touch-icon-precomposed" sizes="57x57" href="/icons/apple-touch-icon-57x57.png"/>
-    <link rel="apple-touch-icon-precomposed" sizes="114x114" href="/icons/apple-touch-icon-114x114.png"/>
-    <link rel="apple-touch-icon-precomposed" sizes="72x72" href="/icons/apple-touch-icon-72x72.png"/>
-    <link rel="apple-touch-icon-precomposed" sizes="144x144" href="/icons/apple-touch-icon-144x144.png"/>
-    <link rel="apple-touch-icon-precomposed" sizes="60x60" href="/icons/apple-touch-icon-60x60.png"/>
-    <link rel="apple-touch-icon-precomposed" sizes="120x120" href="/icons/apple-touch-icon-120x120.png"/>
-    <link rel="apple-touch-icon-precomposed" sizes="76x76" href="/icons/apple-touch-icon-76x76.png"/>
-    <link rel="apple-touch-icon-precomposed" sizes="152x152" href="/icons/apple-touch-icon-152x152.png"/>
-    <link rel="icon" type="image/png" href="/icons/favicon-196x196.png" sizes="196x196"/>
-    <link rel="icon" type="image/png" href="/icons/favicon-96x96.png" sizes="96x96"/>
-    <link rel="icon" type="image/png" href="/icons/favicon-32x32.png" sizes="32x32"/>
-    <link rel="icon" type="image/png" href="/icons/favicon-16x16.png" sizes="16x16"/>
-    <link rel="icon" type="image/png" href="/icons/favicon-128.png" sizes="128x128"/>
-    <meta name="application-name" content="Abhakeln"/>
-    <meta name="msapplication-TileColor" content="#1D91BE"/>
-    <meta name="msapplication-TileImage" content="/icons/mstile-144x144.png"/>
-    <meta name="msapplication-square70x70logo" content="/icons/mstile-70x70.png"/>
-    <meta name="msapplication-square150x150logo" content="/icons/mstile-150x150.png"/>
-    <meta name="msapplication-wide310x150logo" content="/icons/mstile-310x150.png"/>
-    <meta name="msapplication-square310x310logo" content="/icons/mstile-310x310.png"/>
 
     <link rel="stylesheet" href="./css/lib/bulma.min.css">
     <link rel="stylesheet" href="./css/app.css">
@@ -36,140 +18,11 @@
 </head>
 
 <body>
-<script>
-    function registerServiceWorker() {
-        return navigator.serviceWorker.register('/sw.js')
-            .then(function (registration) {
-                return registration;
-            })
-            .catch(function (err) {
-                console.error('Unable to register service worker.', err);
-            });
-    }
-
-    function getNotificationPermissionState() {
-        if (navigator.permissions) {
-            return navigator.permissions.query({name: 'notifications'})
-                .then((result) => {
-                    return result.state;
-                });
-        }
-        return new Promise((resolve) => {
-            resolve(Notification.permission);
-        });
-    }
-
-    function askPermission() {
-        return new Promise(function (resolve, reject) {
-            const permissionResult = Notification.requestPermission(function (result) {
-                resolve(result);
-            });
-
-            if (permissionResult) {
-                permissionResult.then(resolve, reject);
-            }
-        })
-            .then(function (permissionResult) {
-                if (permissionResult !== 'granted') {
-                    throw new Error('We weren\'t granted permission.');
-                }
-            });
-    }
-
-    function urlBase64ToUint8Array(base64String) {
-        const padding = '='.repeat((4 - base64String.length % 4) % 4);
-        const base64 = (base64String + padding)
-            .replace(/\-/g, '+')
-            .replace(/_/g, '/');
-
-        const rawData = window.atob(base64);
-        const outputArray = new Uint8Array(rawData.length);
-
-        for (let i = 0; i < rawData.length; ++i) {
-            outputArray[i] = rawData.charCodeAt(i);
-        }
-        return outputArray;
-    }
-
-    function subscribeUserToPush(swregistration) {
-
-        const subscribeOptions = {
-            userVisibleOnly: true,
-            applicationServerKey: urlBase64ToUint8Array(
-                'BOJ3bVIpDKxWQHABOqHgvtMKfFWbiYuVQAaIj2hBOzRgGfngBLJocrNghdNKtsitNbHoG08YgCXn65aJufr2xlg'
-            )
-        };
-
-        return swregistration.pushManager.subscribe(subscribeOptions)
-            .then(function (pushSubscription) {
-                return pushSubscription;
-            });
-    }
-
-    function sendSubscriptionToBackEnd(subscription) {
-        return fetch('/api/push-subscriptions/', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(subscription)
-        })
-            .then(function (response) {
-                if (!response.ok) {
-                    throw new Error('Bad status code from server.');
-                }
-
-                return response.json();
-            })
-            .then(function (responseData) {
-                if (!(responseData.data && responseData.data.success)) {
-                    throw new Error('Bad response from server.');
-                }
-            });
-    }
-
-    function setUpPush(swregistration) {
-        getNotificationPermissionState()
-            .then(function (currentPermissionState) {
-                if (currentPermissionState === 'denied') {
-                    console.warn('The notification permission has been blocked. Nothing we can do.');
-                    return;
-                }
-
-                askPermission()
-                    .then(p => subscribeUserToPush(swregistration))
-                    .then(function (subscription) {
-                        if (subscription) {
-                            return sendSubscriptionToBackEnd(subscription)
-                                .then(function () {
-                                    return subscription;
-                                });
-                        }
-
-                        return subscription;
-                    })
-                    .catch(function (err) {
-                        console.error('Failed to subscribe the user.', err);
-                    });
-
-            })
-            .catch(function (err) {
-                console.log('Unable to register the service worker: ' + err);
-            });
-    }
-
-    window.onload = function () {
-        if ('serviceWorker' in navigator) {
-            registerServiceWorker().then(registration => {
-                setUpPush(registration);
-            });
-        }
-    };
-</script>
+<script src='../cordova.js'></script>
 <script src='./js/lib/vue.js'></script>
 <script src="./js/lib/sockjs.min.js"></script>
 <script src='./js/lib/vertx-eventbus.js'></script>
-<script src="./js/lib/sodium.js"></script>
+<script src="./js/lib/sjcl.js"></script>
 <script src="./js/lib/dexie.js"></script>
 <script src="./js/lib/purify.min.js"></script>
 <script src="./js/lib/marked.min.js"></script>
@@ -178,6 +31,7 @@
 <script src="./config.js"></script>
 <script src="./js/storage.js"></script>
 <script src="./js/encryption.js"></script>
+<script src="./js/notifications.js"></script>
 <script src="./js/api.js"></script>
 <script src="./js/components/import-wunderlist.js"></script>
 <script src="./js/components/item.js"></script>
@@ -200,17 +54,18 @@
                 <span aria-hidden="true"></span>
             </a>
             <div class="title">
+                <span v-if="offline" class="is-pulled-right is-size-7 has-text-grey-lighter">(offline)</span>
                 Abhakeln <span class="subtitle is-6">alpha!</span>
             </div>
         </div>
         <aside class="menu" v-bind:class="{'visible':listMenuVisible}">
             <ul class="menu-list">
                 <li><a v-on:click="startSync">Synchronisieren</a></li>
-                <li><a>Einstellungen</a></li>
                 <li>
                     <a class="button is-danger is-small" v-on:click="showWunderlistImport">
                         Import von Wunderlist
                     </a>
+                    <div id="log"></div>
                 </li>
             </ul>
             <p class="menu-label" v-if="hasOpenInvitations">
@@ -226,7 +81,6 @@
         <div id="wunderlistImport">
             <ah-wunderlist-import class="ah-import-modal" v-bind:visible="wunderlistImportVisible"/>
         </div>
-
         <ul>
             <ah-list v-for="list in lists" v-bind:key="list._id"
                      v-bind:selected="selectedList && list._id === selectedList._id"
@@ -244,7 +98,7 @@
             <div class="items-head">
                 <div class="level list-title is-mobile">
                     <div class="level-left">
-                        <button type="button" class="level-item button is-small is-light is-hidden-tablet"
+                        <button type="button" class="level-item button is-light is-hidden-tablet"
                                 v-on:click="showLists">&laquo; Zurück
                         </button>
                         <div class="level-item" v-on:click="renameListVisible=true">{{selectedList.name}}</div>
@@ -297,7 +151,7 @@
     <div id="details" v-if="selectedItem" v-bind:class="{'is-hidden-mobile': listsVisible || itemsVisible}">
         <div class="level list-title is-mobile">
             <div class="level-left">
-                <button type="button" class="level-item button is-small is-light is-hidden-tablet"
+                <button type="button" class="level-item button is-light is-hidden-tablet"
                         v-on:click="showItems">&laquo; Zurück
                 </button>
                 <div class="level-item" v-on:click="renameItemVisible=true">{{selectedItem.task}}</div>

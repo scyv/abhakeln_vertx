@@ -3,46 +3,19 @@
 
 <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="Content-Security-Policy"
+          content="default-src 'self' data: gap: https://www.abhakeln.de wss://www.abhakeln.de 'unsafe-eval'; style-src 'self' 'unsafe-inline'; media-src *; img-src 'self' data: content:;">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="msapplication-tap-highlight" content="no">
+    <meta name="viewport" content="initial-scale=1, width=device-width, viewport-fit=cover">
+
     <title>Abhakeln - login</title>
     <link rel="stylesheet" href="../css/lib/bulma.min.css">
     <link rel="stylesheet" href="../css/app.css">
 
-    <link rel="manifest" href="/manifest.json">
-
-    <link rel="apple-touch-icon-precomposed" sizes="57x57" href="/icons/apple-touch-icon-57x57.png" />
-    <link rel="apple-touch-icon-precomposed" sizes="114x114" href="/icons/apple-touch-icon-114x114.png" />
-    <link rel="apple-touch-icon-precomposed" sizes="72x72" href="/icons/apple-touch-icon-72x72.png" />
-    <link rel="apple-touch-icon-precomposed" sizes="144x144" href="/icons/apple-touch-icon-144x144.png" />
-    <link rel="apple-touch-icon-precomposed" sizes="60x60" href="/icons/apple-touch-icon-60x60.png" />
-    <link rel="apple-touch-icon-precomposed" sizes="120x120" href="/icons/apple-touch-icon-120x120.png" />
-    <link rel="apple-touch-icon-precomposed" sizes="76x76" href="/icons/apple-touch-icon-76x76.png" />
-    <link rel="apple-touch-icon-precomposed" sizes="152x152" href="/icons/apple-touch-icon-152x152.png" />
-    <link rel="icon" type="image/png" href="/icons/favicon-196x196.png" sizes="196x196" />
-    <link rel="icon" type="image/png" href="/icons/favicon-96x96.png" sizes="96x96" />
-    <link rel="icon" type="image/png" href="/icons/favicon-32x32.png" sizes="32x32" />
-    <link rel="icon" type="image/png" href="/icons/favicon-16x16.png" sizes="16x16" />
-    <link rel="icon" type="image/png" href="/icons/favicon-128.png" sizes="128x128" />
-    <meta name="application-name" content="Abhakeln"/>
-    <meta name="msapplication-TileColor" content="#1D91BE" />
-    <meta name="msapplication-TileImage" content="/icons/mstile-144x144.png" />
-    <meta name="msapplication-square70x70logo" content="/icons/mstile-70x70.png" />
-    <meta name="msapplication-square150x150logo" content="/icons/mstile-150x150.png" />
-    <meta name="msapplication-wide310x150logo" content="/icons/mstile-310x150.png" />
-    <meta name="msapplication-square310x310logo" content="/icons/mstile-310x310.png" />
 </head>
 
 <body>
-<script>
-        // Check that service workers are supported
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('../sw.js');
-            });
-        }
-
-
-</script>
 <script src='../js/lib/vue.js'></script>
 <div id="loginform">
     <section class="hero">
@@ -60,8 +33,8 @@
     <section class="section">
         <div class="container">
             <div class="notification">
-                Bitte mit Benutzername und Passwort einloggen. Falls Sie noch keinen Account haben, können geben Sie
-                Benutzername und Passwort an und klicken auf "Neuen Account anlegen"
+                Bitte mit Benutzername und Passwort einloggen. Falls Sie noch keinen Account haben, geben Sie
+                Benutzername und Passwort an und klicken Sie auf "Neuen Account anlegen"
             </div>
             <form>
                 <div class="field">
@@ -100,12 +73,11 @@
     <div class="content has-text-centered">
         <p>
             <strong>abhakeln</strong> - private todos | Powered by <a href="https://vertx.io">Vert.x</a> and
-            <a
-                    href="https://vuejs.org/">Vue.js</a>
+            <a href="https://vuejs.org/">Vue.js</a>
         </p>
     </div>
 </footer>
-<script src="../js/lib/sodium.js"></script>
+<script src="../js/lib/sjcl.js"></script>
 <script src="../js/lib/dexie.js"></script>
 <script src="../js/storage.js"></script>
 <script src="../js/encryption.js"></script>

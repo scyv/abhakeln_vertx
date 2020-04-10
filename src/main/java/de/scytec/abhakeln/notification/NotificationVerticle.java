@@ -1,7 +1,6 @@
 package de.scytec.abhakeln.notification;
 
 import io.vertx.core.Promise;
-import io.vertx.core.eventbus.DeliveryOptions;
 import io.vertx.core.json.JsonObject;
 import io.vertx.reactivex.core.AbstractVerticle;
 import io.vertx.reactivex.core.eventbus.Message;
@@ -27,16 +26,6 @@ public class NotificationVerticle extends AbstractVerticle {
         vertx.eventBus().consumer("notify-queue", this::onMessage);
         Security.addProvider(new BouncyCastleProvider());
 
-        vertx.setPeriodic(10000, h -> {
-
-            DeliveryOptions options = new DeliveryOptions().addHeader("action", "get-notifications");
-
-            vertx.eventBus().rxRequest("db-queue", null, options)
-                    .subscribe(notifications -> {
-                        LOGGER.info( ((JsonObject)notifications.body()).encodePrettily());
-                        //((JsonObject)notifications.body()).getJsonArray("notifications")
-                    });
-        });
 
         promise.complete();
     }

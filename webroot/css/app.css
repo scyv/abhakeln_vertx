@@ -1,21 +1,12 @@
-[draggable], #lists *, #items * {
+[draggable] {
   -moz-user-select: none;
   -khtml-user-select: none;
   -webkit-user-select: none;
   user-select: none;
 }
 [draggable] {
-  /* Required to make elements draggable in old WebKit */
   -khtml-user-drag: element;
   -webkit-user-drag: element;
-}
-
-input, input:before, input:after {
-  -webkit-user-select: initial;
-  -khtml-user-select: initial;
-  -moz-user-select: initial;
-  -ms-user-select: initial;
-  user-select: initial;
 }
 
 [v-cloak] {
@@ -28,6 +19,7 @@ input, input:before, input:after {
   height: 100vh;
   overflow: hidden;
   display: flex;
+  padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
 }
 
 #lists {
@@ -40,6 +32,7 @@ input, input:before, input:after {
   padding: 0;
   display: flex;
   flex-direction: column;
+  max-width: 100%;
 }
 
 #lists ul {
@@ -60,7 +53,7 @@ input, input:before, input:after {
 
 #items {
   overflow: hidden;
-  padding: 10px 10px;
+  padding: 10px;
   display: flex;
   flex-direction: column;
 }
@@ -77,7 +70,7 @@ input, input:before, input:after {
   overflow-y: auto;
   flex-grow: 1;
   flex-shrink: 1;
-  padding: 10px 10px;
+  padding: 10px;
 }
 
 .list-title {
@@ -89,6 +82,10 @@ input, input:before, input:after {
 #items .list-title {
   padding: 5px;
   background-color: rgba(255, 255, 255, 0.4);
+}
+
+#details .list-title {
+  padding: 5px;
 }
 
 .list-title div.level-item {

@@ -8,7 +8,7 @@ const appState = {
   joinList: null,
   showDone: false,
   listData: {
-    items: []
+    items: [],
   },
   hasOpenInvitations: true,
   invitationLists: [],
@@ -25,28 +25,31 @@ const appState = {
   itemMenuVisible: false,
   renameItemVisible: false,
   renameListVisible: false,
-  clearItems() {
-    this.listData.items.length = 0;
-    this.listData.items.pop();
-  },
-  clearLists() {
-    this.lists.length = 0;
-    this.lists.pop();
-  }
 };
 
 const eventbus = new AbhakelnEventBus(appState, EVENTBUS_ENDPOINT);
 const api = new AbhakelnApi(appState, API_ENDPOINT);
-const app = new Abhakeln(appState, api);
+const app = new Abhakeln(appState, api, eventbus);
 const dnd = new DragAndDropSupport();
 
-(async () => {
+onDeviceReady = async () => {
   const storage = new Storage();
   appState.masterKey = (await storage.getMasterKey()).key;
   appState.userData = {
-    userId: (await storage.getUserData()).id
+    userId: (await storage.getUserData()).id,
   };
-  await sodium.ready;
   app.init();
-  api.loadLists();
-})();
+  await api.loadLists();
+  new Notifications().requestPermission();
+};
+
+onResume = () => {
+  app.startSync();
+};
+
+document.addEventListener("deviceready", onDeviceReady, false);
+document.addEventListener("onresume", onResume, false);
+
+if (typeof cordova == "undefined") {
+  onDeviceReady();
+}

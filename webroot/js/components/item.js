@@ -15,7 +15,7 @@ class Item {
             },
             methods: {
                 select(evt) {
-                    this.transitionEnabled = "fade";
+                    this.transitionEnabled = "fade";                      
                     appCtx.api.updateItem(
                         {
                             _id: this.item._id,
